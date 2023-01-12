@@ -13,8 +13,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.containers.ContainerUtil;
-import com.poratu.idea.plugins.apusic.conf.TomcatRunConfiguration;
-import com.poratu.idea.plugins.apusic.conf.TomcatRunConfigurationType;
+import com.poratu.idea.plugins.apusic.conf.ApusicRunConfiguration;
+import com.poratu.idea.plugins.apusic.conf.ApusicRunConfigurationType;
 import com.poratu.idea.plugins.apusic.setting.TomcatInfo;
 import com.poratu.idea.plugins.apusic.setting.TomcatServerManagerState;
 import com.poratu.idea.plugins.apusic.utils.PluginUtils;
@@ -23,15 +23,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class TomcatRunConfigurationProducer extends LazyRunConfigurationProducer<TomcatRunConfiguration> {
+public class TomcatRunConfigurationProducer extends LazyRunConfigurationProducer<ApusicRunConfiguration> {
     @NotNull
     @Override
     public ConfigurationFactory getConfigurationFactory() {
-        return ConfigurationTypeUtil.findConfigurationType(TomcatRunConfigurationType.class);
+        return ConfigurationTypeUtil.findConfigurationType(ApusicRunConfigurationType.class);
     }
 
     @Override
-    protected boolean setupConfigurationFromContext(@NotNull TomcatRunConfiguration configuration, @NotNull ConfigurationContext context, @NotNull Ref<PsiElement> sourceElement) {
+    protected boolean setupConfigurationFromContext(@NotNull ApusicRunConfiguration configuration, @NotNull ConfigurationContext context, @NotNull Ref<PsiElement> sourceElement) {
         Module module = context.getModule();
         if (module == null) {
             return false;
@@ -66,7 +66,7 @@ public class TomcatRunConfigurationProducer extends LazyRunConfigurationProducer
     }
 
     @Override
-    public boolean isConfigurationFromContext(@NotNull TomcatRunConfiguration configuration, @NotNull ConfigurationContext context) {
+    public boolean isConfigurationFromContext(@NotNull ApusicRunConfiguration configuration, @NotNull ConfigurationContext context) {
         List<VirtualFile> webRoots = findWebRoots(context.getLocation());
         return webRoots.stream().anyMatch(webRoot -> webRoot.getPath().equals(configuration.getDocBase()));
     }

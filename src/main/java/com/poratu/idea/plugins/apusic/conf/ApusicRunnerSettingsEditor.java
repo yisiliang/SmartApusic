@@ -7,21 +7,21 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class TomcatRunnerSettingsEditor extends SettingsEditor<TomcatRunConfiguration> {
+public class ApusicRunnerSettingsEditor extends SettingsEditor<ApusicRunConfiguration> {
 
-    private final TomcatRunnerSettingsForm form;
+    private final ApusicRunnerSettingsForm form;
 
-    public TomcatRunnerSettingsEditor(Project project) {
-        form = new TomcatRunnerSettingsForm(project);
+    public ApusicRunnerSettingsEditor(Project project) {
+        form = new ApusicRunnerSettingsForm(project);
     }
 
     @Override
-    protected void resetEditorFrom(@NotNull TomcatRunConfiguration configuration) {
+    protected void resetEditorFrom(@NotNull ApusicRunConfiguration configuration) {
         form.resetFrom(configuration);
     }
 
     @Override
-    protected void applyEditorTo(@NotNull TomcatRunConfiguration configuration) throws ConfigurationException {
+    protected void applyEditorTo(@NotNull ApusicRunConfiguration configuration) throws ConfigurationException {
         form.applyTo(configuration);
     }
 

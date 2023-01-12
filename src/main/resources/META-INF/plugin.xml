@@ -11,7 +11,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationConfigurable instance="com.poratu.idea.plugins.apusic.setting.TomcatServersConfigurable" />
         <applicationService serviceImplementation="com.poratu.idea.plugins.apusic.setting.TomcatServerManagerState"/>
-        <configurationType implementation="com.poratu.idea.plugins.apusic.conf.TomcatRunConfigurationType"/>
+        <configurationType implementation="com.poratu.idea.plugins.apusic.conf.ApusicRunConfigurationType"/>
         <runConfigurationProducer implementation="com.poratu.idea.plugins.apusic.runner.TomcatRunConfigurationProducer"/>
         <programRunner implementation="com.poratu.idea.plugins.apusic.runner.TomcatRunner"/>
         <programRunner implementation="com.poratu.idea.plugins.apusic.runner.TomcatDebugger"/>

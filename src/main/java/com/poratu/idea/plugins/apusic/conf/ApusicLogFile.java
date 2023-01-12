@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class TomcatLogFile {
+public class ApusicLogFile {
 
     public static final String TOMCAT_LOCALHOST_LOG_ID = "Apusic Localhost Log";
     public static final String TOMCAT_CATALINA_LOG_ID = "Apusic Catalina Log";
@@ -19,12 +19,12 @@ public class TomcatLogFile {
     private final String filename;
     private boolean enabled;
 
-    public TomcatLogFile(String id, String filename) {
+    public ApusicLogFile(String id, String filename) {
         this.id = id;
         this.filename = filename;
     }
 
-    public TomcatLogFile(String id, String filename, boolean enabled) {
+    public ApusicLogFile(String id, String filename, boolean enabled) {
         this(id, filename);
         this.enabled = enabled;
     }

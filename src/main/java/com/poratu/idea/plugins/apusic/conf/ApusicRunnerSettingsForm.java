@@ -31,7 +31,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
-public class TomcatRunnerSettingsForm implements Disposable {
+public class ApusicRunnerSettingsForm implements Disposable {
 
     private final Project project;
     private JPanel mainPanel;
@@ -44,7 +44,7 @@ public class TomcatRunnerSettingsForm implements Disposable {
     private final RawCommandLineEditor vmOptions = new RawCommandLineEditor();
     private final EnvironmentVariablesTextFieldWithBrowseButton envOptions = new EnvironmentVariablesTextFieldWithBrowseButton();
 
-    TomcatRunnerSettingsForm(Project project) {
+    ApusicRunnerSettingsForm(Project project) {
         this.project = project;
         JButton configurationButton = new JButton("Configure...");
         configurationButton.addActionListener(e -> PluginUtils.openTomcatConfiguration());
@@ -80,7 +80,7 @@ public class TomcatRunnerSettingsForm implements Disposable {
         return mainPanel;
     }
 
-    public void resetFrom(TomcatRunConfiguration configuration) {
+    public void resetFrom(ApusicRunConfiguration configuration) {
         tomcatComboBox.setSelectedItem(configuration.getTomcatInfo());
         docBaseField.setText(configuration.getDocBase());
         contextPathField.setText(configuration.getContextPath());
@@ -93,7 +93,7 @@ public class TomcatRunnerSettingsForm implements Disposable {
         envOptions.setPassParentEnvs(configuration.isPassParentEnvs());
     }
 
-    public void applyTo(TomcatRunConfiguration configuration) throws ConfigurationException {
+    public void applyTo(ApusicRunConfiguration configuration) throws ConfigurationException {
         try {
             configuration.setTomcatInfo((TomcatInfo) tomcatComboBox.getSelectedItem());
             configuration.setDocBase(docBaseField.getText());

@@ -15,7 +15,7 @@ import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
-import com.poratu.idea.plugins.apusic.conf.TomcatRunConfiguration;
+import com.poratu.idea.plugins.apusic.conf.ApusicRunConfiguration;
 import com.poratu.idea.plugins.apusic.setting.TomcatInfo;
 import com.poratu.idea.plugins.apusic.setting.TomcatServerManagerState;
 import com.poratu.idea.plugins.apusic.setting.TomcatServersConfigurable;
@@ -94,7 +94,7 @@ public final class PluginUtils {
                 .ifPresent(callback));
     }
 
-    public static Path getWorkingPath(TomcatRunConfiguration configuration) {
+    public static Path getWorkingPath(ApusicRunConfiguration configuration) {
 
         String userHome = System.getProperty("user.home");
         Project project = configuration.getProject();
@@ -107,7 +107,7 @@ public final class PluginUtils {
         return Paths.get(userHome, ".SmartApusic", project.getName(), module.getName());
     }
 
-    public static Path getTomcatLogsDirPath(TomcatRunConfiguration configuration) {
+    public static Path getTomcatLogsDirPath(ApusicRunConfiguration configuration) {
         Path workingDir = getWorkingPath(configuration);
         if (workingDir != null) {
             return workingDir.resolve("logs");

@@ -51,7 +51,7 @@ import java.util.Map;
  * Time   : 11:10 AM
  */
 
-public class TomcatCommandLineState extends JavaCommandLineState {
+public class ApusicCommandLineState extends JavaCommandLineState {
 
     private static final String JDK_JAVA_OPTIONS = "JDK_JAVA_OPTIONS";
     private static final String ENV_JDK_JAVA_OPTIONS = "--add-opens=java.base/java.lang=ALL-UNNAMED " +
@@ -67,13 +67,13 @@ public class TomcatCommandLineState extends JavaCommandLineState {
     private static final String PARAM_LOGGING_CONFIG = "java.util.logging.config.file";
     private static final String PARAM_LOGGING_MANAGER = "java.util.logging.manager";
     private static final String PARAM_LOGGING_MANAGER_VALUE = "org.apache.juli.ClassLoaderLogManager";
-    private TomcatRunConfiguration configuration;
+    private ApusicRunConfiguration configuration;
 
-    protected TomcatCommandLineState(@NotNull ExecutionEnvironment environment) {
+    protected ApusicCommandLineState(@NotNull ExecutionEnvironment environment) {
         super(environment);
     }
 
-    protected TomcatCommandLineState(ExecutionEnvironment environment, TomcatRunConfiguration configuration) {
+    protected ApusicCommandLineState(ExecutionEnvironment environment, ApusicRunConfiguration configuration) {
         this(environment);
         this.configuration = configuration;
     }
@@ -163,7 +163,7 @@ public class TomcatCommandLineState extends JavaCommandLineState {
         return new ServerConsoleView(configuration);
     }
 
-    private void updateServerConf(Path confPath, TomcatRunConfiguration cfg)
+    private void updateServerConf(Path confPath, ApusicRunConfiguration cfg)
             throws ParserConfigurationException, XPathExpressionException, TransformerException, IOException, SAXException {
         Path serverXml = confPath.resolve("server.xml");
         Document doc = PluginUtils.createDocumentBuilder().parse(serverXml.toFile());

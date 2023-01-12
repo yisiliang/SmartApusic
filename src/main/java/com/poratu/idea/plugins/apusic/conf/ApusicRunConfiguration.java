@@ -49,25 +49,25 @@ import java.util.stream.Collectors;
  * Date   : 2/16/2017
  * Time   : 3:14 PM
  */
-public class TomcatRunConfiguration extends LocatableConfigurationBase<LocatableRunConfigurationOptions> implements RunProfileWithCompileBeforeLaunchOption {
+public class ApusicRunConfiguration extends LocatableConfigurationBase<LocatableRunConfigurationOptions> implements RunProfileWithCompileBeforeLaunchOption {
 
-    private static final List<TomcatLogFile> tomcatLogFiles = Arrays.asList(
-            new TomcatLogFile(TomcatLogFile.TOMCAT_LOCALHOST_LOG_ID, "localhost", true),
-            new TomcatLogFile(TomcatLogFile.TOMCAT_ACCESS_LOG_ID, "localhost_access_log", true),
-            new TomcatLogFile(TomcatLogFile.TOMCAT_CATALINA_LOG_ID, "catalina"),
-            new TomcatLogFile(TomcatLogFile.TOMCAT_MANAGER_LOG_ID, "manager"),
-            new TomcatLogFile(TomcatLogFile.TOMCAT_HOST_MANAGER_LOG_ID, "host-manager")
+    private static final List<ApusicLogFile> APUSIC_LOG_FILES = Arrays.asList(
+            new ApusicLogFile(ApusicLogFile.TOMCAT_LOCALHOST_LOG_ID, "localhost", true),
+            new ApusicLogFile(ApusicLogFile.TOMCAT_ACCESS_LOG_ID, "localhost_access_log", true),
+            new ApusicLogFile(ApusicLogFile.TOMCAT_CATALINA_LOG_ID, "catalina"),
+            new ApusicLogFile(ApusicLogFile.TOMCAT_MANAGER_LOG_ID, "manager"),
+            new ApusicLogFile(ApusicLogFile.TOMCAT_HOST_MANAGER_LOG_ID, "host-manager")
     );
 
     private static List<PredefinedLogFile> createPredefinedLogFiles() {
-        return tomcatLogFiles.stream()
-                .map(TomcatLogFile::createPredefinedLogFile)
+        return APUSIC_LOG_FILES.stream()
+                .map(ApusicLogFile::createPredefinedLogFile)
                 .collect(Collectors.toList());
     }
 
     private TomcatRunConfigurationOptions tomcatOptions = new TomcatRunConfigurationOptions();
 
-    protected TomcatRunConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory, String name) {
+    protected ApusicRunConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory, String name) {
         super(project, factory, name);
         TomcatServerManagerState applicationService = ApplicationManager.getApplication().getService(TomcatServerManagerState.class);
         List<TomcatInfo> tomcatInfos = applicationService.getTomcatInfos();
@@ -81,8 +81,8 @@ public class TomcatRunConfiguration extends LocatableConfigurationBase<Locatable
     @Override
     public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
         Project project = getProject();
-        SettingsEditorGroup<TomcatRunConfiguration> group = new SettingsEditorGroup<>();
-        TomcatRunnerSettingsEditor tomcatSetting = new TomcatRunnerSettingsEditor(project);
+        SettingsEditorGroup<ApusicRunConfiguration> group = new SettingsEditorGroup<>();
+        ApusicRunnerSettingsEditor tomcatSetting = new ApusicRunnerSettingsEditor(project);
 
         group.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"), tomcatSetting);
         group.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel<>());
@@ -136,12 +136,12 @@ public class TomcatRunConfiguration extends LocatableConfigurationBase<Locatable
     @Nullable
     @Override
     public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment executionEnvironment) {
-        return new TomcatCommandLineState(executionEnvironment, this);
+        return new ApusicCommandLineState(executionEnvironment, this);
     }
 
     @Override
     public @Nullable LogFileOptions getOptionsForPredefinedLogFile(PredefinedLogFile file) {
-        for (TomcatLogFile logFile : tomcatLogFiles) {
+        for (ApusicLogFile logFile : APUSIC_LOG_FILES) {
             if (logFile.getId().equals(file.getId())) {
                 return logFile.createLogFileOptions(file, PluginUtils.getTomcatLogsDirPath(this));
             }
@@ -248,7 +248,7 @@ public class TomcatRunConfiguration extends LocatableConfigurationBase<Locatable
 
     @Override
     public RunConfiguration clone() {
-        TomcatRunConfiguration configuration = (TomcatRunConfiguration) super.clone();
+        ApusicRunConfiguration configuration = (ApusicRunConfiguration) super.clone();
         configuration.tomcatOptions = XmlSerializerUtil.createCopy(tomcatOptions);
         return configuration;
     }

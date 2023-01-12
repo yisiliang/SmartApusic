@@ -14,11 +14,11 @@ import javax.swing.*;
  * Date   : 2/16/2017
  * Time   : 3:11 PM
  */
-public class TomcatRunConfigurationType extends SimpleConfigurationType {
+public class ApusicRunConfigurationType extends SimpleConfigurationType {
 
-    private static final Icon TOMCAT_ICON = IconLoader.getIcon("/icon/apusic.svg", TomcatRunConfigurationType.class);
+    private static final Icon TOMCAT_ICON = IconLoader.getIcon("/icon/apusic.svg", ApusicRunConfigurationType.class);
 
-    protected TomcatRunConfigurationType() {
+    protected ApusicRunConfigurationType() {
         super("com.poratu.idea.plugins.apusic",
                 "Smart Apusic",
                 "Configuration to run Apusic server",
@@ -27,7 +27,7 @@ public class TomcatRunConfigurationType extends SimpleConfigurationType {
 
     @Override
     public @NotNull RunConfiguration createTemplateConfiguration(@NotNull Project project) {
-        return new TomcatRunConfiguration(project, this, "");
+        return new ApusicRunConfiguration(project, this, "");
     }
 
 }

@@ -13,10 +13,10 @@ import org.jetbrains.annotations.NotNull;
  * Time   : 00:13
  */
 public class ServerConsoleView extends ConsoleViewImpl {
-    private final TomcatRunConfiguration configuration;
+    private final ApusicRunConfiguration configuration;
     private boolean printStarted = false;
 
-    public ServerConsoleView(TomcatRunConfiguration configuration) {
+    public ServerConsoleView(ApusicRunConfiguration configuration) {
         super(configuration.getProject(), true);
         this.configuration = configuration;
     }
