@@ -60,8 +60,10 @@ public class ApusicCommandLineState extends JavaCommandLineState {
             "--add-opens=java.base/java.util.concurrent=ALL-UNNAMED " +
             "--add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED";
 
-    private static final String TOMCAT_MAIN_CLASS = "org.apache.catalina.startup.Bootstrap";
-    private static final String PARAM_CATALINA_HOME = "catalina.home";
+    private static final String APUSIC_MAIN_CLASS = "com.apusic.server.Main";
+    private static final String PARAM_DOMAIN_HOME = "com.apusic.domain.home";
+    private static final String PARAM_APUSIC_HOME = "root";
+    private static final String PARAM_CATALINA_HOME = "com.apusic.domain.home";
     private static final String PARAM_CATALINA_BASE = "catalina.base";
     private static final String PARAM_CATALINA_TMPDIR = "java.io.tmpdir";
     private static final String PARAM_LOGGING_CONFIG = "java.util.logging.config.file";
@@ -107,24 +109,14 @@ public class ApusicCommandLineState extends JavaCommandLineState {
             if (workingPath == null || module == null) {
                 throw new ExecutionException("The Module Root specified is not a module according to Intellij");
             }
+            workingPath.toFile().mkdirs();
 
             Path apusicInstallationPath = Paths.get(configuration.getApusicInfo().getPath());
             Project project = configuration.getProject();
-            String apusicVersion = configuration.getApusicInfo().getVersion();
             String vmOptions = configuration.getVmOptions();
             Map<String, String> envOptions = configuration.getEnvOptions();
 
             // Copy the Apusic configuration files to the working directory
-            Path confPath = workingPath.resolve("conf");
-            FileUtil.delete(confPath);
-            FileUtil.createDirectory(confPath.toFile());
-            FileUtil.copyDir(apusicInstallationPath.resolve("conf").toFile(), confPath.toFile());
-            // create the temp folder
-            FileUtil.createDirectory(workingPath.resolve("temp").toFile());
-
-            updateServerConf(confPath, configuration);
-            createContextFile(apusicVersion, module, confPath);
-            deleteApusicWorkFiles(workingPath);
 
             ProjectRootManager manager = ProjectRootManager.getInstance(project);
 
@@ -132,10 +124,12 @@ public class ApusicCommandLineState extends JavaCommandLineState {
             javaParams.setDefaultCharset(project);
             javaParams.setWorkingDirectory(workingPath.toFile());
             javaParams.setJdk(manager.getProjectSdk());
-            javaParams.getClassPath().add(apusicInstallationPath.resolve("bin/bootstrap.jar").toFile());
-            javaParams.getClassPath().add(apusicInstallationPath.resolve("bin/apusic-juli.jar").toFile());
-            javaParams.setMainClass(TOMCAT_MAIN_CLASS);
-            javaParams.getProgramParametersList().add("start");
+
+            javaParams.getClassPath().add(apusicInstallationPath.resolve("classes").toFile());
+            javaParams.getClassPath().add(apusicInstallationPath.resolve("common/*").toFile());
+            javaParams.getClassPath().add(apusicInstallationPath.resolve("lib/*").toFile());
+            javaParams.getClassPath().add(apusicInstallationPath.resolve("lib/ext/*").toFile());
+            javaParams.setMainClass(APUSIC_MAIN_CLASS);
 
             javaParams.setPassParentEnvs(configuration.isPassParentEnvs());
             if (envOptions != null) {
@@ -144,12 +138,9 @@ public class ApusicCommandLineState extends JavaCommandLineState {
 
             ParametersList vmParams = javaParams.getVMParametersList();
             vmParams.addParametersString(vmOptions);
-            vmParams.addProperty(PARAM_CATALINA_HOME, apusicInstallationPath.toString());
-            vmParams.defineProperty(PARAM_CATALINA_BASE, workingPath.toString());
-            vmParams.defineProperty(PARAM_CATALINA_TMPDIR, workingPath.resolve("temp").toString());
-            vmParams.defineProperty(PARAM_LOGGING_CONFIG, confPath.resolve("logging.properties").toString());
-            vmParams.defineProperty(PARAM_LOGGING_MANAGER, PARAM_LOGGING_MANAGER_VALUE);
+            vmParams.addProperty(PARAM_DOMAIN_HOME, configuration.getDomain());
 
+            javaParams.getProgramParametersList().add("-root " + configuration.getApusicInfo().getPath());
             return javaParams;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -163,161 +154,5 @@ public class ApusicCommandLineState extends JavaCommandLineState {
         return new ServerConsoleView(configuration);
     }
 
-    private void updateServerConf(Path confPath, ApusicRunConfiguration cfg)
-            throws ParserConfigurationException, XPathExpressionException, TransformerException, IOException, SAXException {
-        Path serverXml = confPath.resolve("server.xml");
-        Document doc = PluginUtils.createDocumentBuilder().parse(serverXml.toFile());
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        XPathExpression exprConnectorShutdown = xpath.compile("/Server[@shutdown='SHUTDOWN']");
-        XPathExpression exprConnector = xpath.compile("/Server/Service[@name='Catalina']/Connector[@protocol='HTTP/1.1']");
-        XPathExpression exprContext = xpath.compile("/Server/Service[@name='Catalina']/Engine[@name='Catalina']/Host/Context");
-
-        Element portShutdown = (Element) exprConnectorShutdown.evaluate(doc, XPathConstants.NODE);
-        Element portE = (Element) exprConnector.evaluate(doc, XPathConstants.NODE);
-
-        NodeList nodeList = (NodeList) exprContext.evaluate(doc, XPathConstants.NODESET);
-        if (nodeList != null) {
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                Node node = nodeList.item(i);
-                node.getParentNode().removeChild(node);
-            }
-        }
-
-        portShutdown.setAttribute("port", String.valueOf(cfg.getAdminPort()));
-        portE.setAttribute("port", String.valueOf(cfg.getPort()));
-
-        PluginUtils.createTransformer().transform(new DOMSource(doc), new StreamResult(serverXml.toFile()));
-    }
-
-    private void createContextFile(String apusicVersion, Module module, Path confPath)
-            throws ParserConfigurationException, IOException, SAXException, TransformerException {
-        String docBase = configuration.getDocBase();
-        String contextPath = configuration.getContextPath();
-        String normalizedContextPath = StringUtil.trim(contextPath, ch -> ch != '/');
-        String contextFileName = StringUtil.defaultIfEmpty(normalizedContextPath, "ROOT").replace('/', '#');
-        Path contextFilesDir = confPath.resolve("Catalina/localhost");
-        Path contextFilePath = contextFilesDir.resolve(contextFileName + ".xml");
-
-        // Create `conf/Catalina/localhost` folder
-        FileUtil.createDirectory(contextFilesDir.toFile());
-
-        DocumentBuilder builder = PluginUtils.createDocumentBuilder();
-        Document doc = builder.newDocument();
-        Element contextRoot = createContextElement(doc, builder);
-
-        contextRoot.setAttribute("docBase", docBase);
-
-        collectResources(doc, contextRoot, module, apusicVersion);
-        doc.appendChild(contextRoot);
-
-        StringWriter writer = new StringWriter();
-        PluginUtils.createTransformer().transform(new DOMSource(doc), new StreamResult(writer));
-        FileUtil.writeToFile(contextFilePath.toFile(), writer.toString());
-    }
-
-    private Element createContextElement(Document doc, DocumentBuilder builder) throws IOException, SAXException {
-        Path contextFile = findContextFileInApp();
-
-        if (contextFile == null) {
-            return doc.createElement("Context");
-        }
-
-        Element contextEl = builder.parse(contextFile.toFile()).getDocumentElement();
-        return (Element) doc.importNode(contextEl, true);
-    }
-
-    private Path findContextFileInApp() {
-        String docBase = configuration.getDocBase();
-        if (docBase == null) {
-            return null;
-        }
-
-        Path metaInf = Paths.get(docBase).resolve("META-INF");
-        Path contextLocalFile = metaInf.resolve("context_local.xml");
-        Path contextFile = metaInf.resolve("context.xml");
-
-        if (Files.exists(contextLocalFile)) {
-            return contextLocalFile;
-        } else if (Files.exists(contextFile)) {
-            return contextFile;
-        } else {
-            return null;
-        }
-    }
-
-    private void collectResources(Document doc, Element contextRoot, Module module, String apusicVersion) {
-        String majorVersionStr = apusicVersion.split("\\.")[0];
-        int majorVersion = Integer.parseInt(majorVersionStr);
-        PathsList pathsList = OrderEnumerator.orderEntries(module)
-                .withoutSdk().runtimeOnly().productionOnly().getPathsList();
-
-        if (pathsList.isEmpty()) {
-            return;
-        }
-
-        if (majorVersion >= 8) {
-            Element resources = createResourcesElementIfNecessary(doc, contextRoot);
-            pathsList.getVirtualFiles().forEach(file -> {
-                Element res;
-                String tagName;
-                String className;
-                String webAppMount;
-
-                if (file.isDirectory()) {
-                    tagName = "PreResources";
-                    className = "org.apache.catalina.webresources.DirResourceSet";
-                    webAppMount = "/WEB-INF/classes";
-                } else {
-                    tagName = "PostResources";
-                    className = "org.apache.catalina.webresources.FileResourceSet";
-                    webAppMount = "/WEB-INF/lib/" + file.getName();
-                }
-
-                res = doc.createElement(tagName);
-                res.setAttribute("base", file.getPath());
-                res.setAttribute("className", className);
-                res.setAttribute("webAppMount", webAppMount);
-
-                resources.appendChild(res);
-            });
-        } else if (majorVersion >= 6) {
-            Element loader = doc.createElement("Loader");
-            loader.setAttribute("className", "org.apache.catalina.loader.VirtualWebappLoader");
-            loader.setAttribute("virtualClasspath", StringUtil.join(pathsList.getPathList(), ";"));
-            contextRoot.appendChild(loader);
-        } else {
-            throw new RuntimeException("Unsupported Apusic version: " + apusicVersion);
-        }
-    }
-
-    private Element createResourcesElementIfNecessary(Document doc, Element contextRoot) {
-        Element resources = (Element) contextRoot.getElementsByTagName("Resources").item(0);
-        if (resources == null) {
-            resources = doc.createElement("Resources");
-            contextRoot.appendChild(resources);
-        }
-
-        if (Registry.is("smartApusic.resources.allowLinking")) {
-            resources.setAttribute("allowLinking", "true");
-        }
-
-        int cacheMaxSize = Registry.intValue("smartApusic.resources.cacheMaxSize", 10240);
-        if (cacheMaxSize > 0) {
-            resources.setAttribute("cacheMaxSize", String.valueOf(cacheMaxSize));
-        }
-
-        return resources;
-    }
-
-    private void deleteApusicWorkFiles(Path apusicHome) {
-        Path apusicWorkPath = apusicHome.resolve("work/Catalina/localhost");
-        FileUtil.processFilesRecursively(apusicWorkPath.toFile(), file -> {
-            // Delete the work files except the session persistence files
-            if (file.isFile() && !file.getName().endsWith(".ser")) {
-                FileUtil.delete(file);
-            }
-            return true;
-        });
-    }
 
 }

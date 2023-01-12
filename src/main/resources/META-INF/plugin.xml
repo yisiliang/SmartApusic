@@ -1,6 +1,6 @@
 <idea-plugin>
     <name>Smart Apusic</name>
-    <vendor email="zengkid@msn.com">zengkid</vendor>
+    <vendor email="yisiliang@foxmail.com">YiSiliang</vendor>
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
     <idea-version since-build="193.5233.102"/>
 

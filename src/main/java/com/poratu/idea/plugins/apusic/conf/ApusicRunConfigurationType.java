@@ -16,13 +16,13 @@ import javax.swing.*;
  */
 public class ApusicRunConfigurationType extends SimpleConfigurationType {
 
-    private static final Icon TOMCAT_ICON = IconLoader.getIcon("/icon/apusic.svg", ApusicRunConfigurationType.class);
+    private static final Icon APUSIC_ICON = IconLoader.getIcon("/icon/apusic.svg", ApusicRunConfigurationType.class);
 
     protected ApusicRunConfigurationType() {
         super("com.poratu.idea.plugins.apusic",
                 "Smart Apusic",
                 "Configuration to run Apusic server",
-                NotNullLazyValue.createValue(() -> TOMCAT_ICON));
+                NotNullLazyValue.createValue(() -> APUSIC_ICON));
     }
 
     @Override

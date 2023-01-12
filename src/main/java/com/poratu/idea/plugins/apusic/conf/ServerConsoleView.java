@@ -29,24 +29,24 @@ public class ServerConsoleView extends ConsoleViewImpl {
             return;
         }
 
-        // skip the exception log e.g.:
-        // at org.apache.catalina.startup.Catalina.start(Catalina.java:772)
-        boolean isExceptionLog = s.trim().startsWith("at ");
-        if (isExceptionLog) {
-            return;
-        }
-
-        if (s.contains("org.apache.catalina.startup.Catalina start")
-                || s.contains("org.apache.catalina.startup.Catalina.start")) {
-
-            boolean isDefaultPort = Integer.valueOf(80).equals(configuration.getPort());
-            String authority = "localhost" + (isDefaultPort ? "" : ":" + configuration.getPort());
-            String path = '/' + StringUtil.trimStart(configuration.getContextPath(), "/");
-            Url url = Urls.newHttpUrl(authority, path);
-
-            super.print(url + "\n", contentType);
-            printStarted = true;
-        }
+//        // skip the exception log e.g.:
+//        // at org.apache.catalina.startup.Catalina.start(Catalina.java:772)
+//        boolean isExceptionLog = s.trim().startsWith("at ");
+//        if (isExceptionLog) {
+//            return;
+//        }
+//
+//        if (s.contains("org.apache.catalina.startup.Catalina start")
+//                || s.contains("org.apache.catalina.startup.Catalina.start")) {
+//
+//            boolean isDefaultPort = Integer.valueOf(80).equals(configuration.getPort());
+//            String authority = "localhost" + (isDefaultPort ? "" : ":" + configuration.getPort());
+//            String path = '/' + StringUtil.trimStart(configuration.getContextPath(), "/");
+//            Url url = Urls.newHttpUrl(authority, path);
+//
+//            super.print(url + "\n", contentType);
+//            printStarted = true;
+//        }
     }
 
 }

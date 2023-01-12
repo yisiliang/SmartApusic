@@ -100,9 +100,6 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
             throw new RuntimeConfigurationError("Deployment directory cannot be empty");
         }
 
-        if (apusicOptions.getPort() == null || apusicOptions.getAdminPort() == null) {
-            throw new RuntimeConfigurationError("Port cannot be empty");
-        }
     }
 
     @Override
@@ -206,20 +203,12 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         apusicOptions.setContextPath(contextPath);
     }
 
-    public Integer getPort() {
-        return apusicOptions.getPort();
+    public String getDomain() {
+        return apusicOptions.getDomain();
     }
 
-    public void setPort(Integer port) {
-        apusicOptions.setPort(port);
-    }
-
-    public Integer getAdminPort() {
-        return apusicOptions.getAdminPort();
-    }
-
-    public void setAdminPort(Integer adminPort) {
-        apusicOptions.setAdminPort(adminPort);
+    public void setDomain(String domain) {
+        apusicOptions.setDomain(domain);
     }
 
     public String getVmOptions() {
@@ -258,9 +247,8 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
 
         private String docBase;
         private String contextPath;
-        private Integer port = 8080;
-        private Integer adminPort = 8005;
-        private String vmOptions;
+        private String domain;
+        private String vmOptions = "-server -Xms1024m -Xmx1024m";
         private Map<String, String> envOptions;
         private Boolean passParentEnvs = true;
 
@@ -289,20 +277,12 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
             this.contextPath = contextPath;
         }
 
-        public Integer getPort() {
-            return port;
+        public String getDomain() {
+            return domain;
         }
 
-        public void setPort(Integer port) {
-            this.port = port;
-        }
-
-        public Integer getAdminPort() {
-            return adminPort;
-        }
-
-        public void setAdminPort(Integer adminPort) {
-            this.adminPort = adminPort;
+        public void setDomain(String domain) {
+            this.domain = domain;
         }
 
         public String getVmOptions() {

@@ -156,21 +156,6 @@ public final class PluginUtils {
         ShowSettingsUtil.getInstance().showSettingsDialog(null, ApusicServersConfigurable.class);
     }
 
-    public static int parsePort(String text) throws ConfigurationException {
-        if (StringUtil.isEmpty(text)) {
-            throw new ConfigurationException("Port cannot be empty");
-        }
-
-        try {
-            int port = Integer.parseInt(text);
-            if (port < MIN_PORT_VALUE || port > MAX_PORT_VALUE) {
-                throw new ConfigurationException("Port number must be between " + MIN_PORT_VALUE + " and " + MAX_PORT_VALUE);
-            }
-            return port;
-        } catch (NumberFormatException e) {
-            throw new ConfigurationException("Port number must be an integer");
-        }
-    }
 
     public static String extractContextPath(Module module) {
         String name = module.getName();

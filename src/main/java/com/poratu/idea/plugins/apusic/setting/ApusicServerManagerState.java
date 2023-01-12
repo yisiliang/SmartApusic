@@ -11,14 +11,11 @@ import com.poratu.idea.plugins.apusic.utils.PluginUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.function.UnaryOperator;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -30,7 +27,7 @@ import java.util.zip.ZipEntry;
  * Time   : 15:20
  */
 
-@State(name = "ServerConfiguration", storages = @Storage("smart.apusic.xml"))
+@State(name = "ApusicServerConfiguration", storages = @Storage("smart.apusic.xml"))
 public class ApusicServerManagerState implements PersistentStateComponent<ApusicServerManagerState> {
 
     @XCollection(elementTypes = ApusicInfo.class)
@@ -61,9 +58,9 @@ public class ApusicServerManagerState implements PersistentStateComponent<Apusic
     }
 
     public static Optional<ApusicInfo> createApusicInfo(String apusicHome, UnaryOperator<String> nameGenerator) {
-        File jarFile = Paths.get(apusicHome, "lib/catalina.jar").toFile();
+        File jarFile = Paths.get(apusicHome, "lib/apusic.jar").toFile();
         if (!jarFile.exists()) {
-            Messages.showErrorDialog("Can not find catalina.jar in " + apusicHome, "Error");
+            Messages.showErrorDialog("Can not find lib/apusic.jar in " + apusicHome, "Error");
             return Optional.empty();
         }
 
@@ -71,13 +68,23 @@ public class ApusicServerManagerState implements PersistentStateComponent<Apusic
         apusicInfo.setPath(apusicHome);
 
         try (JarFile jar = new JarFile(jarFile)) {
-            ZipEntry entry = jar.getEntry("org/apache/catalina/util/ServerInfo.properties");
-            Properties p = new Properties();
-            try (InputStream is = jar.getInputStream(entry)) {
-                p.load(is);
+            ZipEntry entry = jar.getEntry("META-INF/MANIFEST.MF");
+            String serverInfo = "Apusic";
+            String serverNumber = "unknown";
+            InputStream inputStream = jar.getInputStream(entry);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            while (true) {
+                String line = bufferedReader.readLine();
+                if (line != null) {
+                    if (line.startsWith("Specification-Version:")) {
+                        serverNumber = line.substring("Specification-Version:".length() - 1).trim();
+                        break;
+                    }
+                } else {
+                    break;
+                }
             }
-            String serverInfo = p.getProperty("server.info");
-            String serverNumber = p.getProperty("server.number");
+
             String name = nameGenerator == null ? generateApusicName(serverInfo) : nameGenerator.apply(serverInfo);
             apusicInfo.setName(name);
             apusicInfo.setVersion(serverNumber);

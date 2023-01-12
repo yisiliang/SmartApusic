@@ -12,6 +12,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.TextComponentAccessor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.ui.RawCommandLineEditor;
@@ -27,8 +29,10 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxEditor;
 import java.awt.*;
+import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.List;
 
 public class ApusicRunnerSettingsForm implements Disposable {
@@ -36,11 +40,10 @@ public class ApusicRunnerSettingsForm implements Disposable {
     private final Project project;
     private JPanel mainPanel;
     private final JPanel apusicField = new JPanel(new BorderLayout());
-    private final ApusicComboBox apusicComboBox = new ApusicComboBox();
+    private final JTextField domainField = new JTextField();
+    private final ApusicComboBox apusicComboBox = new ApusicComboBox(domainField);
     private final TextFieldWithBrowseButton docBaseField = new TextFieldWithBrowseButton();
     private final JTextField contextPathField = new JTextField();
-    private final JTextField portField = new JTextField();
-    private final JTextField adminPort = new JTextField();
     private final RawCommandLineEditor vmOptions = new RawCommandLineEditor();
     private final EnvironmentVariablesTextFieldWithBrowseButton envOptions = new EnvironmentVariablesTextFieldWithBrowseButton();
 
@@ -67,8 +70,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
                 .addLabeledComponent("Apusic server:", apusicField)
                 .addLabeledComponent("Deployment directory:", docBaseField)
                 .addLabeledComponent("Context path:", contextPathField)
-                .addLabeledComponent("Server port:", portField)
-                .addLabeledComponent("Admin port:", adminPort)
+                .addLabeledComponent("Domain:", domainField)
                 .addLabeledComponent("VM options:", vmOptions)
                 .addLabeledComponent("Env options:", envOptions)
                 .addComponentFillVertically(new JPanel(), 0);
@@ -84,8 +86,11 @@ public class ApusicRunnerSettingsForm implements Disposable {
         apusicComboBox.setSelectedItem(configuration.getApusicInfo());
         docBaseField.setText(configuration.getDocBase());
         contextPathField.setText(configuration.getContextPath());
-        portField.setText(String.valueOf(configuration.getPort()));
-        adminPort.setText(String.valueOf(configuration.getAdminPort()));
+        if (StringUtil.isEmpty(configuration.getDomain())) {
+            File file = new File(configuration.getApusicInfo().getPath(), "domains");
+            file = new File(file, "mydomain");
+            domainField.setText(file.getAbsolutePath());
+        }
         vmOptions.setText(configuration.getVmOptions());
         if (configuration.getEnvOptions() != null) {
             envOptions.setEnvs(configuration.getEnvOptions());
@@ -95,11 +100,17 @@ public class ApusicRunnerSettingsForm implements Disposable {
 
     public void applyTo(ApusicRunConfiguration configuration) throws ConfigurationException {
         try {
-            configuration.setApusicInfo((ApusicInfo) apusicComboBox.getSelectedItem());
+            ApusicInfo selectedApusicInfo = (ApusicInfo) apusicComboBox.getSelectedItem();
+            configuration.setApusicInfo(selectedApusicInfo);
             configuration.setDocBase(docBaseField.getText());
             configuration.setContextPath(contextPathField.getText());
-            configuration.setPort(PluginUtils.parsePort(portField.getText()));
-            configuration.setAdminPort(PluginUtils.parsePort(adminPort.getText()));
+
+            if (selectedApusicInfo != null && StringUtil.isEmpty(domainField.getText())) {
+                File file = new File(selectedApusicInfo.getPath(), "domains");
+                file = new File(file, "mydomain");
+                domainField.setText(file.getAbsolutePath());
+            }
+            configuration.setDomain(domainField.getText());
             configuration.setVmOptions(vmOptions.getText());
             configuration.setEnvOptions(envOptions.getEnvs());
             configuration.setPassParentEnvironmentVariables(envOptions.isPassParentEnvs());
@@ -114,7 +125,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
     }
 
     private static class ApusicComboBox extends JComboBox<ApusicInfo> {
-
+        private JTextField domainField;
         ApusicComboBox() {
             super();
 
@@ -125,12 +136,36 @@ public class ApusicRunnerSettingsForm implements Disposable {
             initBrowsableEditor();
         }
 
+        ApusicComboBox(JTextField domainField) {
+            super();
+
+            List<ApusicInfo> apusicInfos = ApusicServerManagerState.getInstance().getApusicInfos();
+            ComboBoxModel<ApusicInfo> model = new CollectionComboBoxModel<>(apusicInfos);
+            setModel(model);
+
+            initBrowsableEditor();
+
+            this.domainField = domainField;
+        }
+
         private void initBrowsableEditor() {
             ComboBoxEditor editor = new ApusicComboBoxEditor(this);
             setEditor(editor);
             setEditable(true);
         }
 
+        @Override
+        protected void fireItemStateChanged(ItemEvent e) {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                ApusicInfo selectedApusicInfo = (ApusicInfo) this.getSelectedItem();
+                if (selectedApusicInfo != null && StringUtil.isEmpty(domainField.getText())) {
+                    File file = new File(selectedApusicInfo.getPath(), "domains");
+                    file = new File(file, "mydomain");
+                    domainField.setText(file.getAbsolutePath());
+                }
+                super.fireItemStateChanged(e);
+            }
+        }
     }
 
     private static class ApusicComboBoxEditor extends BasicComboBoxEditor {
