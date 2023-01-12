@@ -183,9 +183,6 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
 
     private static class ApusicRunConfigurationOptions implements Serializable {
         private ApusicInfo apusicInfo;
-
-        private String docBase;
-        private String contextPath;
         private String domain;
         private String vmOptions = "-server -Xms1024m -Xmx1024m";
         private Map<String, String> envOptions;

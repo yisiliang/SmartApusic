@@ -41,6 +41,8 @@ public class ApusicCommandLineState extends JavaCommandLineState {
 
     private static final String APUSIC_MAIN_CLASS = "com.apusic.server.Main";
     private static final String PARAM_DOMAIN_HOME = "com.apusic.domain.home";
+    private static final String ENV_DOMAIN_HOME = "DOMAIN_HOME";
+    private static final String ENV_APUSIC_HOME = "APUSIC_HOME";
     private static final String PARAM_APUSIC_HOME = "root";
     private static final String PARAM_CATALINA_HOME = "com.apusic.domain.home";
     private static final String PARAM_CATALINA_BASE = "catalina.base";
@@ -85,6 +87,7 @@ public class ApusicCommandLineState extends JavaCommandLineState {
         try {
             Path workingPath = PluginUtils.getWorkingPath(configuration);
             workingPath.toFile().mkdirs();
+            File apusicHome = new File(configuration.getApusicInfo().getPath());
 
             Path apusicInstallationPath = Paths.get(configuration.getApusicInfo().getPath());
             Project project = configuration.getProject();
@@ -116,8 +119,10 @@ public class ApusicCommandLineState extends JavaCommandLineState {
             ParametersList vmParams = javaParams.getVMParametersList();
             vmParams.addParametersString(vmOptions);
             vmParams.addProperty(PARAM_DOMAIN_HOME, configuration.getDomain());
+            vmParams.addProperty(ENV_DOMAIN_HOME, configuration.getDomain());
+            vmParams.addProperty(ENV_APUSIC_HOME, apusicHome.getAbsolutePath());
             javaParams.getProgramParametersList().add("-root");
-            javaParams.getProgramParametersList().add(configuration.getApusicInfo().getPath());
+            javaParams.getProgramParametersList().add(apusicHome.getAbsolutePath());
             return javaParams;
         } catch (Exception e) {
             throw new RuntimeException(e);
