@@ -41,7 +41,7 @@ public class ApusicServerManagerState implements PersistentStateComponent<Apusic
     }
 
     @NotNull
-    public List<ApusicInfo> getTomcatInfos() {
+    public List<ApusicInfo> getApusicInfos() {
         return apusicInfos;
     }
 
@@ -56,11 +56,11 @@ public class ApusicServerManagerState implements PersistentStateComponent<Apusic
         XmlSerializerUtil.copyBean(apusicSettingsState, this);
     }
 
-    public static Optional<ApusicInfo> createTomcatInfo(String apusicHome) {
-        return createTomcatInfo(apusicHome, ApusicServerManagerState::generateTomcatName);
+    public static Optional<ApusicInfo> createApusicInfo(String apusicHome) {
+        return createApusicInfo(apusicHome, ApusicServerManagerState::generateApusicName);
     }
 
-    public static Optional<ApusicInfo> createTomcatInfo(String apusicHome, UnaryOperator<String> nameGenerator) {
+    public static Optional<ApusicInfo> createApusicInfo(String apusicHome, UnaryOperator<String> nameGenerator) {
         File jarFile = Paths.get(apusicHome, "lib/catalina.jar").toFile();
         if (!jarFile.exists()) {
             Messages.showErrorDialog("Can not find catalina.jar in " + apusicHome, "Error");
@@ -78,7 +78,7 @@ public class ApusicServerManagerState implements PersistentStateComponent<Apusic
             }
             String serverInfo = p.getProperty("server.info");
             String serverNumber = p.getProperty("server.number");
-            String name = nameGenerator == null ? generateTomcatName(serverInfo) : nameGenerator.apply(serverInfo);
+            String name = nameGenerator == null ? generateApusicName(serverInfo) : nameGenerator.apply(serverInfo);
             apusicInfo.setName(name);
             apusicInfo.setVersion(serverNumber);
         } catch (IOException e) {
@@ -89,8 +89,8 @@ public class ApusicServerManagerState implements PersistentStateComponent<Apusic
         return Optional.of(apusicInfo);
     }
 
-    private static String generateTomcatName(String name) {
-        List<ApusicInfo> existingServers = getInstance().getTomcatInfos();
+    private static String generateApusicName(String name) {
+        List<ApusicInfo> existingServers = getInstance().getApusicInfos();
         List<String> existingNames = existingServers.stream()
                 .map(ApusicInfo::getName)
                 .collect(Collectors.toList());

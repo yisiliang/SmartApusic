@@ -36,7 +36,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
     private final Project project;
     private JPanel mainPanel;
     private final JPanel apusicField = new JPanel(new BorderLayout());
-    private final TomcatComboBox apusicComboBox = new TomcatComboBox();
+    private final ApusicComboBox apusicComboBox = new ApusicComboBox();
     private final TextFieldWithBrowseButton docBaseField = new TextFieldWithBrowseButton();
     private final JTextField contextPathField = new JTextField();
     private final JTextField portField = new JTextField();
@@ -47,7 +47,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
     ApusicRunnerSettingsForm(Project project) {
         this.project = project;
         JButton configurationButton = new JButton("Configure...");
-        configurationButton.addActionListener(e -> PluginUtils.openTomcatConfiguration());
+        configurationButton.addActionListener(e -> PluginUtils.openApusicConfiguration());
 
         apusicField.add(apusicComboBox, BorderLayout.CENTER);
         apusicField.add(configurationButton, BorderLayout.EAST);
@@ -81,7 +81,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
     }
 
     public void resetFrom(ApusicRunConfiguration configuration) {
-        apusicComboBox.setSelectedItem(configuration.getTomcatInfo());
+        apusicComboBox.setSelectedItem(configuration.getApusicInfo());
         docBaseField.setText(configuration.getDocBase());
         contextPathField.setText(configuration.getContextPath());
         portField.setText(String.valueOf(configuration.getPort()));
@@ -95,7 +95,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
 
     public void applyTo(ApusicRunConfiguration configuration) throws ConfigurationException {
         try {
-            configuration.setTomcatInfo((ApusicInfo) apusicComboBox.getSelectedItem());
+            configuration.setApusicInfo((ApusicInfo) apusicComboBox.getSelectedItem());
             configuration.setDocBase(docBaseField.getText());
             configuration.setContextPath(contextPathField.getText());
             configuration.setPort(PluginUtils.parsePort(portField.getText()));
@@ -113,12 +113,12 @@ public class ApusicRunnerSettingsForm implements Disposable {
         mainPanel = null;
     }
 
-    private static class TomcatComboBox extends JComboBox<ApusicInfo> {
+    private static class ApusicComboBox extends JComboBox<ApusicInfo> {
 
-        TomcatComboBox() {
+        ApusicComboBox() {
             super();
 
-            List<ApusicInfo> apusicInfos = ApusicServerManagerState.getInstance().getTomcatInfos();
+            List<ApusicInfo> apusicInfos = ApusicServerManagerState.getInstance().getApusicInfos();
             ComboBoxModel<ApusicInfo> model = new CollectionComboBoxModel<>(apusicInfos);
             setModel(model);
 
@@ -126,19 +126,19 @@ public class ApusicRunnerSettingsForm implements Disposable {
         }
 
         private void initBrowsableEditor() {
-            ComboBoxEditor editor = new TomcatComboBoxEditor(this);
+            ComboBoxEditor editor = new ApusicComboBoxEditor(this);
             setEditor(editor);
             setEditable(true);
         }
 
     }
 
-    private static class TomcatComboBoxEditor extends BasicComboBoxEditor {
-        private static final TomcatComboBoxTextComponentAccessor TEXT_COMPONENT_ACCESSOR = new TomcatComboBoxTextComponentAccessor();
-        private final TomcatComboBox comboBox;
+    private static class ApusicComboBoxEditor extends BasicComboBoxEditor {
+        private static final ApusicComboBoxTextComponentAccessor TEXT_COMPONENT_ACCESSOR = new ApusicComboBoxTextComponentAccessor();
+        private final ApusicComboBox comboBox;
         private boolean fileDialogOpened;
 
-        public TomcatComboBoxEditor(TomcatComboBox comboBox) {
+        public ApusicComboBoxEditor(ApusicComboBox comboBox) {
             this.comboBox = comboBox;
         }
 
@@ -167,7 +167,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
             String tooltip = UIBundle.message("component.with.browse.button.browse.button.tooltip.text");
             Runnable browseRunnable = () -> {
                 fileDialogOpened = true;
-                PluginUtils.chooseTomcat(apusicInfo -> TEXT_COMPONENT_ACCESSOR.setText(comboBox, apusicInfo.getPath()));
+                PluginUtils.chooseApusic(apusicInfo -> TEXT_COMPONENT_ACCESSOR.setText(comboBox, apusicInfo.getPath()));
                 SwingUtilities.invokeLater(() -> fileDialogOpened = false);
             };
             return ExtendableTextComponent.Extension.create(AllIcons.General.OpenDisk, AllIcons.General.OpenDiskHover,
@@ -175,7 +175,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
         }
     }
 
-    private static class TomcatComboBoxTextComponentAccessor implements TextComponentAccessor<JComboBox<ApusicInfo>> {
+    private static class ApusicComboBoxTextComponentAccessor implements TextComponentAccessor<JComboBox<ApusicInfo>> {
 
         @Override
         public String getText(JComboBox<ApusicInfo> component) {
@@ -184,7 +184,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
 
         @Override
         public void setText(JComboBox<ApusicInfo> comboBox, @NotNull String text) {
-            ApusicServerManagerState.createTomcatInfo(text).ifPresent(apusicInfo -> {
+            ApusicServerManagerState.createApusicInfo(text).ifPresent(apusicInfo -> {
                 CollectionComboBoxModel<ApusicInfo> model = (CollectionComboBoxModel<ApusicInfo>) comboBox.getModel();
                 model.add(apusicInfo);
                 comboBox.setSelectedItem(apusicInfo);

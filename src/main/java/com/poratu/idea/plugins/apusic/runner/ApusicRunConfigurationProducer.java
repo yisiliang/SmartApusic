@@ -48,9 +48,9 @@ public class ApusicRunConfigurationProducer extends LazyRunConfigurationProducer
             return false;
         }
 
-        List<ApusicInfo> apusicInfos = ApusicServerManagerState.getInstance().getTomcatInfos();
+        List<ApusicInfo> apusicInfos = ApusicServerManagerState.getInstance().getApusicInfos();
         if (!apusicInfos.isEmpty()) {
-            configuration.setTomcatInfo(apusicInfos.get(0));
+            configuration.setApusicInfo(apusicInfos.get(0));
         }
         String contextPath = PluginUtils.extractContextPath(module);
         configuration.setName("Apusic: " + contextPath);

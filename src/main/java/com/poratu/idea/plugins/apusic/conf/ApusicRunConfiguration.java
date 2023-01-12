@@ -65,16 +65,16 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
                 .collect(Collectors.toList());
     }
 
-    private TomcatRunConfigurationOptions apusicOptions = new TomcatRunConfigurationOptions();
+    private ApusicRunConfigurationOptions apusicOptions = new ApusicRunConfigurationOptions();
 
     protected ApusicRunConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory, String name) {
         super(project, factory, name);
         ApusicServerManagerState applicationService = ApplicationManager.getApplication().getService(ApusicServerManagerState.class);
-        List<ApusicInfo> apusicInfos = applicationService.getTomcatInfos();
+        List<ApusicInfo> apusicInfos = applicationService.getApusicInfos();
         if (!apusicInfos.isEmpty()) {
-            apusicOptions.setTomcatInfo(apusicInfos.get(0));
+            apusicOptions.setApusicInfo(apusicInfos.get(0));
         }
-        addPredefinedTomcatLogFiles();
+        addPredefinedApusicLogFiles();
     }
 
     @NotNull
@@ -92,7 +92,7 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
 
     @Override
     public void checkConfiguration() throws RuntimeConfigurationException {
-        if (apusicOptions.getTomcatInfo() == null) {
+        if (apusicOptions.getApusicInfo() == null) {
             throw new RuntimeConfigurationError("Apusic server is not selected");
         }
 
@@ -143,7 +143,7 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
     public @Nullable LogFileOptions getOptionsForPredefinedLogFile(PredefinedLogFile file) {
         for (ApusicLogFile logFile : APUSIC_LOG_FILES) {
             if (logFile.getId().equals(file.getId())) {
-                return logFile.createLogFileOptions(file, PluginUtils.getTomcatLogsDirPath(this));
+                return logFile.createLogFileOptions(file, PluginUtils.getApusicLogsDirPath(this));
             }
         }
 
@@ -156,7 +156,7 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         XmlSerializer.deserializeInto(element, apusicOptions);
 
         if (getAllLogFiles().isEmpty()) {
-            addPredefinedTomcatLogFiles();
+            addPredefinedApusicLogFiles();
         }
     }
 
@@ -166,7 +166,7 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         XmlSerializer.serializeObjectInto(apusicOptions, element);
     }
 
-    private void addPredefinedTomcatLogFiles() {
+    private void addPredefinedApusicLogFiles() {
         createPredefinedLogFiles().forEach(this::addPredefinedLogFile);
     }
 
@@ -182,12 +182,12 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         return module;
     }
 
-    public ApusicInfo getTomcatInfo() {
-        return apusicOptions.getTomcatInfo();
+    public ApusicInfo getApusicInfo() {
+        return apusicOptions.getApusicInfo();
     }
 
-    public void setTomcatInfo(ApusicInfo apusicInfo) {
-        apusicOptions.setTomcatInfo(apusicInfo);
+    public void setApusicInfo(ApusicInfo apusicInfo) {
+        apusicOptions.setApusicInfo(apusicInfo);
     }
 
     public String getDocBase() {
@@ -253,7 +253,7 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         return configuration;
     }
 
-    private static class TomcatRunConfigurationOptions implements Serializable {
+    private static class ApusicRunConfigurationOptions implements Serializable {
         private ApusicInfo apusicInfo;
 
         private String docBase;
@@ -264,11 +264,11 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         private Map<String, String> envOptions;
         private Boolean passParentEnvs = true;
 
-        public ApusicInfo getTomcatInfo() {
+        public ApusicInfo getApusicInfo() {
             return apusicInfo;
         }
 
-        public void setTomcatInfo(ApusicInfo apusicInfo) {
+        public void setApusicInfo(ApusicInfo apusicInfo) {
             this.apusicInfo = apusicInfo;
         }
 

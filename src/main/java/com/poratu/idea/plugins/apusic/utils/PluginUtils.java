@@ -79,18 +79,18 @@ public final class PluginUtils {
         return maxSequent == 0 ? preferredName : preferredName + " (" + (maxSequent + 1) + ")";
     }
 
-    public static void chooseTomcat(Consumer<ApusicInfo> callback) {
-        chooseTomcat(null, callback);
+    public static void chooseApusic(Consumer<ApusicInfo> callback) {
+        chooseApusic(null, callback);
     }
 
-    public static void chooseTomcat(UnaryOperator<String> nameGenerator, Consumer<ApusicInfo> callback) {
+    public static void chooseApusic(UnaryOperator<String> nameGenerator, Consumer<ApusicInfo> callback) {
         FileChooserDescriptor descriptor = FileChooserDescriptorFactory
                 .createSingleFolderDescriptor()
                 .withTitle("Select Apusic Server")
                 .withDescription("Select the directory of the Apusic Server");
 
         FileChooser.chooseFile(descriptor, null, null, file -> ApusicServerManagerState
-                .createTomcatInfo(file.getPath(), nameGenerator)
+                .createApusicInfo(file.getPath(), nameGenerator)
                 .ifPresent(callback));
     }
 
@@ -107,7 +107,7 @@ public final class PluginUtils {
         return Paths.get(userHome, ".SmartApusic", project.getName(), module.getName());
     }
 
-    public static Path getTomcatLogsDirPath(ApusicRunConfiguration configuration) {
+    public static Path getApusicLogsDirPath(ApusicRunConfiguration configuration) {
         Path workingDir = getWorkingPath(configuration);
         if (workingDir != null) {
             return workingDir.resolve("logs");
@@ -152,7 +152,7 @@ public final class PluginUtils {
         return transformer;
     }
 
-    public static void openTomcatConfiguration() {
+    public static void openApusicConfiguration() {
         ShowSettingsUtil.getInstance().showSettingsDialog(null, ApusicServersConfigurable.class);
     }
 

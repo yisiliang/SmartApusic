@@ -108,9 +108,9 @@ public class ApusicCommandLineState extends JavaCommandLineState {
                 throw new ExecutionException("The Module Root specified is not a module according to Intellij");
             }
 
-            Path apusicInstallationPath = Paths.get(configuration.getTomcatInfo().getPath());
+            Path apusicInstallationPath = Paths.get(configuration.getApusicInfo().getPath());
             Project project = configuration.getProject();
-            String apusicVersion = configuration.getTomcatInfo().getVersion();
+            String apusicVersion = configuration.getApusicInfo().getVersion();
             String vmOptions = configuration.getVmOptions();
             Map<String, String> envOptions = configuration.getEnvOptions();
 
@@ -124,7 +124,7 @@ public class ApusicCommandLineState extends JavaCommandLineState {
 
             updateServerConf(confPath, configuration);
             createContextFile(apusicVersion, module, confPath);
-            deleteTomcatWorkFiles(workingPath);
+            deleteApusicWorkFiles(workingPath);
 
             ProjectRootManager manager = ProjectRootManager.getInstance(project);
 
@@ -297,11 +297,11 @@ public class ApusicCommandLineState extends JavaCommandLineState {
             contextRoot.appendChild(resources);
         }
 
-        if (Registry.is("smartTomcat.resources.allowLinking")) {
+        if (Registry.is("smartApusic.resources.allowLinking")) {
             resources.setAttribute("allowLinking", "true");
         }
 
-        int cacheMaxSize = Registry.intValue("smartTomcat.resources.cacheMaxSize", 10240);
+        int cacheMaxSize = Registry.intValue("smartApusic.resources.cacheMaxSize", 10240);
         if (cacheMaxSize > 0) {
             resources.setAttribute("cacheMaxSize", String.valueOf(cacheMaxSize));
         }
@@ -309,7 +309,7 @@ public class ApusicCommandLineState extends JavaCommandLineState {
         return resources;
     }
 
-    private void deleteTomcatWorkFiles(Path apusicHome) {
+    private void deleteApusicWorkFiles(Path apusicHome) {
         Path apusicWorkPath = apusicHome.resolve("work/Catalina/localhost");
         FileUtil.processFilesRecursively(apusicWorkPath.toFile(), file -> {
             // Delete the work files except the session persistence files

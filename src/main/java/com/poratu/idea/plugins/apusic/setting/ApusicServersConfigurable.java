@@ -38,7 +38,7 @@ public class ApusicServersConfigurable extends MasterDetailsComponent {
     @Override
     protected @Nullable List<AnAction> createActions(boolean fromPopup) {
         List<AnAction> actions = new ArrayList<>();
-        actions.add(new AddTomcatAction());
+        actions.add(new AddApusicAction());
         // noinspection MissingRecentApi - the inspection of the next line is incorrect. It is available in 193+, actually
         actions.add(new MyDeleteAction());
         return actions;
@@ -51,7 +51,7 @@ public class ApusicServersConfigurable extends MasterDetailsComponent {
             return true;
         }
 
-        int size = ApusicServerManagerState.getInstance().getTomcatInfos().size();
+        int size = ApusicServerManagerState.getInstance().getApusicInfos().size();
         return myRoot.getChildCount() != size;
     }
 
@@ -60,7 +60,7 @@ public class ApusicServersConfigurable extends MasterDetailsComponent {
         myRoot.removeAllChildren();
 
         ApusicServerManagerState state = ApusicServerManagerState.getInstance();
-        for (ApusicInfo info : state.getTomcatInfos()) {
+        for (ApusicInfo info : state.getApusicInfos()) {
             addNode(info, false);
         }
         super.reset();
@@ -70,7 +70,7 @@ public class ApusicServersConfigurable extends MasterDetailsComponent {
     public void apply() throws ConfigurationException {
         super.apply();
 
-        List<ApusicInfo> apusicInfos = ApusicServerManagerState.getInstance().getTomcatInfos();
+        List<ApusicInfo> apusicInfos = ApusicServerManagerState.getInstance().getApusicInfos();
         apusicInfos.clear();
 
         for (int i = 0; i < myRoot.getChildCount(); i++) {
@@ -82,7 +82,7 @@ public class ApusicServersConfigurable extends MasterDetailsComponent {
     @Override
     protected boolean wasObjectStored(Object editableObject) {
         // noinspection SuspiciousMethodCalls
-        return ApusicServerManagerState.getInstance().getTomcatInfos().contains(editableObject);
+        return ApusicServerManagerState.getInstance().getApusicInfos().contains(editableObject);
     }
 
     private void addNode(ApusicInfo apusicInfo, boolean selectInTree) {
@@ -104,15 +104,15 @@ public class ApusicServersConfigurable extends MasterDetailsComponent {
         }
     }
 
-    private class AddTomcatAction extends DumbAwareAction {
-        public AddTomcatAction() {
+    private class AddApusicAction extends DumbAwareAction {
+        public AddApusicAction() {
             super("Add", "Add a Apusic server", IconUtil.getAddIcon());
             registerCustomShortcutSet(CommonActionsPanel.getCommonShortcut(CommonActionsPanel.Buttons.ADD), myTree);
         }
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            PluginUtils.chooseTomcat(this::createUniqueName, apusicInfo -> addNode(apusicInfo, true));
+            PluginUtils.chooseApusic(this::createUniqueName, apusicInfo -> addNode(apusicInfo, true));
         }
 
         private String createUniqueName(String preferredName) {
