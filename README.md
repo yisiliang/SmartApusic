@@ -1,4 +1,4 @@
-# SmartApusic (clone from SmartApusic)
+# SmartApusic (clone from SmartTomcat)
 <!-- Plugin description -->
 The Apusic plugin for Intellij IDEA
 
