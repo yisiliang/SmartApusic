@@ -54,8 +54,6 @@ public class ApusicRunConfigurationProducer extends LazyRunConfigurationProducer
         }
         String contextPath = PluginUtils.extractContextPath(module);
         configuration.setName("Apusic: " + contextPath);
-        configuration.setDocBase(webRoots.get(0).getPath());
-        configuration.setContextPath("/" + contextPath);
 
         return true;
     }
@@ -67,8 +65,7 @@ public class ApusicRunConfigurationProducer extends LazyRunConfigurationProducer
 
     @Override
     public boolean isConfigurationFromContext(@NotNull ApusicRunConfiguration configuration, @NotNull ConfigurationContext context) {
-        List<VirtualFile> webRoots = findWebRoots(context.getLocation());
-        return webRoots.stream().anyMatch(webRoot -> webRoot.getPath().equals(configuration.getDocBase()));
+        return true;
     }
 
     private List<VirtualFile> findWebRoots(@Nullable Location<?> location) {

@@ -21,6 +21,10 @@ import java.util.List;
  */
 public class ApusicServersConfigurable extends MasterDetailsComponent {
 
+    public ApusicServersConfigurable() {
+        initTree();
+    }
+
     @Override
     public String getDisplayName() {
         return "Apusic Server";
@@ -29,10 +33,6 @@ public class ApusicServersConfigurable extends MasterDetailsComponent {
     @Override
     public String getHelpTopic() {
         return "Smart Apusic Help";
-    }
-
-    public ApusicServersConfigurable() {
-        initTree();
     }
 
     @Override

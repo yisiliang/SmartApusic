@@ -2,9 +2,6 @@ package com.poratu.idea.plugins.apusic.conf;
 
 import com.intellij.execution.impl.ConsoleViewImpl;
 import com.intellij.execution.ui.ConsoleViewContentType;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.Url;
-import com.intellij.util.Urls;
 import org.jetbrains.annotations.NotNull;
 
 /**

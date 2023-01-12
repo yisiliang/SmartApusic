@@ -11,38 +11,21 @@ import com.intellij.execution.process.KillableProcessHandler;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.ui.ConsoleView;
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.util.io.FileFilters;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.registry.Registry;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.PathsList;
+import com.intellij.util.PathUtil;
 import com.poratu.idea.plugins.apusic.utils.PluginUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.file.Files;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -54,11 +37,7 @@ import java.util.Map;
 public class ApusicCommandLineState extends JavaCommandLineState {
 
     private static final String JDK_JAVA_OPTIONS = "JDK_JAVA_OPTIONS";
-    private static final String ENV_JDK_JAVA_OPTIONS = "--add-opens=java.base/java.lang=ALL-UNNAMED " +
-            "--add-opens=java.base/java.io=ALL-UNNAMED " +
-            "--add-opens=java.base/java.util=ALL-UNNAMED " +
-            "--add-opens=java.base/java.util.concurrent=ALL-UNNAMED " +
-            "--add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED";
+    private static final String ENV_JDK_JAVA_OPTIONS = "--add-opens=java.base/java.lang=ALL-UNNAMED " + "--add-opens=java.base/java.io=ALL-UNNAMED " + "--add-opens=java.base/java.util=ALL-UNNAMED " + "--add-opens=java.base/java.util.concurrent=ALL-UNNAMED " + "--add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED";
 
     private static final String APUSIC_MAIN_CLASS = "com.apusic.server.Main";
     private static final String PARAM_DOMAIN_HOME = "com.apusic.domain.home";
@@ -105,10 +84,6 @@ public class ApusicCommandLineState extends JavaCommandLineState {
     protected JavaParameters createJavaParameters() {
         try {
             Path workingPath = PluginUtils.getWorkingPath(configuration);
-            Module module = configuration.getModule();
-            if (workingPath == null || module == null) {
-                throw new ExecutionException("The Module Root specified is not a module according to Intellij");
-            }
             workingPath.toFile().mkdirs();
 
             Path apusicInstallationPath = Paths.get(configuration.getApusicInfo().getPath());
@@ -125,10 +100,12 @@ public class ApusicCommandLineState extends JavaCommandLineState {
             javaParams.setWorkingDirectory(workingPath.toFile());
             javaParams.setJdk(manager.getProjectSdk());
 
+
             javaParams.getClassPath().add(apusicInstallationPath.resolve("classes").toFile());
-            javaParams.getClassPath().add(apusicInstallationPath.resolve("common/*").toFile());
-            javaParams.getClassPath().add(apusicInstallationPath.resolve("lib/*").toFile());
-            javaParams.getClassPath().add(apusicInstallationPath.resolve("lib/ext/*").toFile());
+
+            javaParams.getClassPath().addAllFiles(listJars(apusicInstallationPath.resolve("common").toFile()));
+            javaParams.getClassPath().addAllFiles(listJars(apusicInstallationPath.resolve("lib").toFile()));
+            javaParams.getClassPath().addAllFiles(listJars(apusicInstallationPath.resolve("lib" + File.separator + "ext").toFile()));
             javaParams.setMainClass(APUSIC_MAIN_CLASS);
 
             javaParams.setPassParentEnvs(configuration.isPassParentEnvs());
@@ -139,13 +116,23 @@ public class ApusicCommandLineState extends JavaCommandLineState {
             ParametersList vmParams = javaParams.getVMParametersList();
             vmParams.addParametersString(vmOptions);
             vmParams.addProperty(PARAM_DOMAIN_HOME, configuration.getDomain());
-
-            javaParams.getProgramParametersList().add("-root " + configuration.getApusicInfo().getPath());
+            javaParams.getProgramParametersList().add("-root");
+            javaParams.getProgramParametersList().add(configuration.getApusicInfo().getPath());
             return javaParams;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
+    }
+
+    private List<File> listJars(File dir) {
+        File[] ret = dir.listFiles(FileFilters.filesWithExtension("jar"));
+        List<File> fileList = new ArrayList<>();
+        if (ret == null) {
+            return fileList;
+        }
+        fileList.addAll(Arrays.asList(ret));
+        return fileList;
     }
 
     @Nullable

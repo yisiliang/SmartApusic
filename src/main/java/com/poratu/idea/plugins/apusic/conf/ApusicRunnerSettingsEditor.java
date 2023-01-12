@@ -26,7 +26,7 @@ public class ApusicRunnerSettingsEditor extends SettingsEditor<ApusicRunConfigur
     }
 
     @Override
-   protected @NotNull JComponent createEditor() {
+    protected @NotNull JComponent createEditor() {
         return form.getMainPanel();
     }
 

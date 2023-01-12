@@ -6,7 +6,6 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleFileIndex;
@@ -98,13 +97,7 @@ public final class PluginUtils {
 
         String userHome = System.getProperty("user.home");
         Project project = configuration.getProject();
-        Module module = configuration.getModule();
-
-        if (module == null) {
-            return null;
-        }
-
-        return Paths.get(userHome, ".SmartApusic", project.getName(), module.getName());
+        return Paths.get(userHome, ".SmartApusic", project.getName());
     }
 
     public static Path getApusicLogsDirPath(ApusicRunConfiguration configuration) {

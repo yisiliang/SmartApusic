@@ -10,8 +10,8 @@ import javax.swing.*;
 public class ApusicInfoConfigurable extends NamedConfigurable<ApusicInfo> {
     private final ApusicInfo apusicInfo;
     private final ApusicInfoComponent apusicInfoView;
-    private String displayName;
     private final ApusicNameValidator<String> nameValidator;
+    private String displayName;
 
     public ApusicInfoConfigurable(ApusicInfo apusicInfo, Runnable treeUpdater, ApusicNameValidator<String> nameValidator) {
         super(true, treeUpdater);
@@ -19,11 +19,6 @@ public class ApusicInfoConfigurable extends NamedConfigurable<ApusicInfo> {
         this.apusicInfoView = new ApusicInfoComponent(apusicInfo);
         this.displayName = apusicInfo.getName();
         this.nameValidator = nameValidator;
-    }
-
-    @Override
-    public void setDisplayName(String name) {
-        this.displayName = name;
     }
 
     @Override
@@ -44,6 +39,11 @@ public class ApusicInfoConfigurable extends NamedConfigurable<ApusicInfo> {
     @Override
     public String getDisplayName() {
         return displayName;
+    }
+
+    @Override
+    public void setDisplayName(String name) {
+        this.displayName = name;
     }
 
     @Override

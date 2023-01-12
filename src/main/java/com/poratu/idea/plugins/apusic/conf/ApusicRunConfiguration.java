@@ -5,30 +5,17 @@ import com.intellij.diagnostic.logging.LogConfigurationPanel;
 import com.intellij.execution.ExecutionBundle;
 import com.intellij.execution.Executor;
 import com.intellij.execution.JavaRunConfigurationExtensionManager;
-import com.intellij.execution.configurations.ConfigurationFactory;
-import com.intellij.execution.configurations.LocatableConfigurationBase;
-import com.intellij.execution.configurations.LocatableRunConfigurationOptions;
-import com.intellij.execution.configurations.LogFileOptions;
-import com.intellij.execution.configurations.PredefinedLogFile;
-import com.intellij.execution.configurations.RunConfiguration;
-import com.intellij.execution.configurations.RunProfileState;
-import com.intellij.execution.configurations.RunProfileWithCompileBeforeLaunchOption;
-import com.intellij.execution.configurations.RuntimeConfigurationError;
-import com.intellij.execution.configurations.RuntimeConfigurationException;
+import com.intellij.execution.configurations.*;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.options.SettingsEditorGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.poratu.idea.plugins.apusic.setting.ApusicInfo;
 import com.poratu.idea.plugins.apusic.setting.ApusicServerManagerState;
@@ -38,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -58,13 +44,6 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
             new ApusicLogFile(ApusicLogFile.TOMCAT_MANAGER_LOG_ID, "manager"),
             new ApusicLogFile(ApusicLogFile.TOMCAT_HOST_MANAGER_LOG_ID, "host-manager")
     );
-
-    private static List<PredefinedLogFile> createPredefinedLogFiles() {
-        return APUSIC_LOG_FILES.stream()
-                .map(ApusicLogFile::createPredefinedLogFile)
-                .collect(Collectors.toList());
-    }
-
     private ApusicRunConfigurationOptions apusicOptions = new ApusicRunConfigurationOptions();
 
     protected ApusicRunConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory, String name) {
@@ -75,6 +54,12 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
             apusicOptions.setApusicInfo(apusicInfos.get(0));
         }
         addPredefinedApusicLogFiles();
+    }
+
+    private static List<PredefinedLogFile> createPredefinedLogFiles() {
+        return APUSIC_LOG_FILES.stream()
+                .map(ApusicLogFile::createPredefinedLogFile)
+                .collect(Collectors.toList());
     }
 
     @NotNull
@@ -95,32 +80,14 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         if (apusicOptions.getApusicInfo() == null) {
             throw new RuntimeConfigurationError("Apusic server is not selected");
         }
-
-        if (StringUtil.isEmpty(apusicOptions.getDocBase())) {
-            throw new RuntimeConfigurationError("Deployment directory cannot be empty");
+        if (StringUtil.isEmpty(apusicOptions.getDomain())) {
+            throw new RuntimeConfigurationError("Apusic domain is empty");
         }
-
     }
 
     @Override
     public void onNewConfigurationCreated() {
         super.onNewConfigurationCreated();
-
-        try {
-            Project project = getProject();
-            List<VirtualFile> webRoots = PluginUtils.findWebRoots(project);
-
-            if (!webRoots.isEmpty()) {
-                VirtualFile webRoot = webRoots.get(0);
-                apusicOptions.setDocBase(webRoot.getPath());
-                Module module = ModuleUtilCore.findModuleForFile(webRoot, project);
-                if (module != null) {
-                    apusicOptions.setContextPath("/" + PluginUtils.extractContextPath(module));
-                }
-            }
-        } catch (Exception e) {
-            //do nothing.
-        }
 
     }
 
@@ -167,40 +134,12 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         createPredefinedLogFiles().forEach(this::addPredefinedLogFile);
     }
 
-    @Nullable
-    public Module getModule() {
-        Module module = null;
-        if (apusicOptions.getDocBase() != null) {
-            VirtualFile virtualFile = VfsUtil.findFile(Paths.get(apusicOptions.getDocBase()), true);
-            if (virtualFile != null) {
-                module = ReadAction.compute(() -> ModuleUtilCore.findModuleForFile(virtualFile, getProject()));
-            }
-        }
-        return module;
-    }
-
     public ApusicInfo getApusicInfo() {
         return apusicOptions.getApusicInfo();
     }
 
     public void setApusicInfo(ApusicInfo apusicInfo) {
         apusicOptions.setApusicInfo(apusicInfo);
-    }
-
-    public String getDocBase() {
-        return apusicOptions.getDocBase();
-    }
-
-    public void setDocBase(String docBase) {
-        apusicOptions.setDocBase(docBase);
-    }
-
-    public String getContextPath() {
-        return apusicOptions.getContextPath();
-    }
-
-    public void setContextPath(String contextPath) {
-        apusicOptions.setContextPath(contextPath);
     }
 
     public String getDomain() {
@@ -260,22 +199,6 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
             this.apusicInfo = apusicInfo;
         }
 
-        @Nullable
-        public String getDocBase() {
-            return docBase;
-        }
-
-        public void setDocBase(String docBase) {
-            this.docBase = docBase;
-        }
-
-        public String getContextPath() {
-            return contextPath;
-        }
-
-        public void setContextPath(String contextPath) {
-            this.contextPath = contextPath;
-        }
 
         public String getDomain() {
             return domain;

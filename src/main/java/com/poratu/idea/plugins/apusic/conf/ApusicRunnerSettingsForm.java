@@ -11,8 +11,6 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.TextComponentAccessor;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.CollectionComboBoxModel;
@@ -38,14 +36,12 @@ import java.util.List;
 public class ApusicRunnerSettingsForm implements Disposable {
 
     private final Project project;
-    private JPanel mainPanel;
     private final JPanel apusicField = new JPanel(new BorderLayout());
     private final JTextField domainField = new JTextField();
     private final ApusicComboBox apusicComboBox = new ApusicComboBox(domainField);
-    private final TextFieldWithBrowseButton docBaseField = new TextFieldWithBrowseButton();
-    private final JTextField contextPathField = new JTextField();
     private final RawCommandLineEditor vmOptions = new RawCommandLineEditor();
     private final EnvironmentVariablesTextFieldWithBrowseButton envOptions = new EnvironmentVariablesTextFieldWithBrowseButton();
+    private JPanel mainPanel;
 
     ApusicRunnerSettingsForm(Project project) {
         this.project = project;
@@ -55,21 +51,13 @@ public class ApusicRunnerSettingsForm implements Disposable {
         apusicField.add(apusicComboBox, BorderLayout.CENTER);
         apusicField.add(configurationButton, BorderLayout.EAST);
 
-        initDeploymentDirectory();
         buildForm();
     }
 
-    private void initDeploymentDirectory() {
-        FileChooserDescriptor descriptor = new IgnoreOutputFileChooserDescriptor(project);
-        docBaseField.addBrowseFolderListener("Select Deployment Directory", "Please the directory to deploy",
-                project, descriptor);
-    }
 
     private void buildForm() {
         FormBuilder builder = FormBuilder.createFormBuilder()
                 .addLabeledComponent("Apusic server:", apusicField)
-                .addLabeledComponent("Deployment directory:", docBaseField)
-                .addLabeledComponent("Context path:", contextPathField)
                 .addLabeledComponent("Domain:", domainField)
                 .addLabeledComponent("VM options:", vmOptions)
                 .addLabeledComponent("Env options:", envOptions)
@@ -84,8 +72,6 @@ public class ApusicRunnerSettingsForm implements Disposable {
 
     public void resetFrom(ApusicRunConfiguration configuration) {
         apusicComboBox.setSelectedItem(configuration.getApusicInfo());
-        docBaseField.setText(configuration.getDocBase());
-        contextPathField.setText(configuration.getContextPath());
         if (StringUtil.isEmpty(configuration.getDomain())) {
             File file = new File(configuration.getApusicInfo().getPath(), "domains");
             file = new File(file, "mydomain");
@@ -102,8 +88,6 @@ public class ApusicRunnerSettingsForm implements Disposable {
         try {
             ApusicInfo selectedApusicInfo = (ApusicInfo) apusicComboBox.getSelectedItem();
             configuration.setApusicInfo(selectedApusicInfo);
-            configuration.setDocBase(docBaseField.getText());
-            configuration.setContextPath(contextPathField.getText());
 
             if (selectedApusicInfo != null && StringUtil.isEmpty(domainField.getText())) {
                 File file = new File(selectedApusicInfo.getPath(), "domains");
@@ -126,6 +110,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
 
     private static class ApusicComboBox extends JComboBox<ApusicInfo> {
         private JTextField domainField;
+
         ApusicComboBox() {
             super();
 

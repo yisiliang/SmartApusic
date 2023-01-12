@@ -37,22 +37,6 @@ public class ApusicServerManagerState implements PersistentStateComponent<Apusic
         return ApplicationManager.getApplication().getService(ApusicServerManagerState.class);
     }
 
-    @NotNull
-    public List<ApusicInfo> getApusicInfos() {
-        return apusicInfos;
-    }
-
-    @Nullable
-    @Override
-    public ApusicServerManagerState getState() {
-        return this;
-    }
-
-    @Override
-    public void loadState(@NotNull ApusicServerManagerState apusicSettingsState) {
-        XmlSerializerUtil.copyBean(apusicSettingsState, this);
-    }
-
     public static Optional<ApusicInfo> createApusicInfo(String apusicHome) {
         return createApusicInfo(apusicHome, ApusicServerManagerState::generateApusicName);
     }
@@ -103,6 +87,22 @@ public class ApusicServerManagerState implements PersistentStateComponent<Apusic
                 .collect(Collectors.toList());
 
         return PluginUtils.generateSequentName(existingNames, name);
+    }
+
+    @NotNull
+    public List<ApusicInfo> getApusicInfos() {
+        return apusicInfos;
+    }
+
+    @Nullable
+    @Override
+    public ApusicServerManagerState getState() {
+        return this;
+    }
+
+    @Override
+    public void loadState(@NotNull ApusicServerManagerState apusicSettingsState) {
+        XmlSerializerUtil.copyBean(apusicSettingsState, this);
     }
 
 }
