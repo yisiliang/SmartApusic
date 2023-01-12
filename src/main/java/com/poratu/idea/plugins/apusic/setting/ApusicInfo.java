@@ -8,7 +8,7 @@ import java.util.Objects;
  * Date   : 2017-03-05
  * Time   : 16:17
  */
-public class TomcatInfo implements Serializable {
+public class ApusicInfo implements Serializable {
     private String name;
     private String version;
     private String path;
@@ -41,7 +41,7 @@ public class TomcatInfo implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TomcatInfo that = (TomcatInfo) o;
+        ApusicInfo that = (ApusicInfo) o;
         return Objects.equals(name, that.name) && Objects.equals(version, that.version) && Objects.equals(path, that.path);
     }
 

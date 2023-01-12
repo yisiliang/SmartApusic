@@ -108,9 +108,9 @@ public class ApusicCommandLineState extends JavaCommandLineState {
                 throw new ExecutionException("The Module Root specified is not a module according to Intellij");
             }
 
-            Path tomcatInstallationPath = Paths.get(configuration.getTomcatInfo().getPath());
+            Path apusicInstallationPath = Paths.get(configuration.getTomcatInfo().getPath());
             Project project = configuration.getProject();
-            String tomcatVersion = configuration.getTomcatInfo().getVersion();
+            String apusicVersion = configuration.getTomcatInfo().getVersion();
             String vmOptions = configuration.getVmOptions();
             Map<String, String> envOptions = configuration.getEnvOptions();
 
@@ -118,12 +118,12 @@ public class ApusicCommandLineState extends JavaCommandLineState {
             Path confPath = workingPath.resolve("conf");
             FileUtil.delete(confPath);
             FileUtil.createDirectory(confPath.toFile());
-            FileUtil.copyDir(tomcatInstallationPath.resolve("conf").toFile(), confPath.toFile());
+            FileUtil.copyDir(apusicInstallationPath.resolve("conf").toFile(), confPath.toFile());
             // create the temp folder
             FileUtil.createDirectory(workingPath.resolve("temp").toFile());
 
             updateServerConf(confPath, configuration);
-            createContextFile(tomcatVersion, module, confPath);
+            createContextFile(apusicVersion, module, confPath);
             deleteTomcatWorkFiles(workingPath);
 
             ProjectRootManager manager = ProjectRootManager.getInstance(project);
@@ -132,8 +132,8 @@ public class ApusicCommandLineState extends JavaCommandLineState {
             javaParams.setDefaultCharset(project);
             javaParams.setWorkingDirectory(workingPath.toFile());
             javaParams.setJdk(manager.getProjectSdk());
-            javaParams.getClassPath().add(tomcatInstallationPath.resolve("bin/bootstrap.jar").toFile());
-            javaParams.getClassPath().add(tomcatInstallationPath.resolve("bin/apusic-juli.jar").toFile());
+            javaParams.getClassPath().add(apusicInstallationPath.resolve("bin/bootstrap.jar").toFile());
+            javaParams.getClassPath().add(apusicInstallationPath.resolve("bin/apusic-juli.jar").toFile());
             javaParams.setMainClass(TOMCAT_MAIN_CLASS);
             javaParams.getProgramParametersList().add("start");
 
@@ -144,7 +144,7 @@ public class ApusicCommandLineState extends JavaCommandLineState {
 
             ParametersList vmParams = javaParams.getVMParametersList();
             vmParams.addParametersString(vmOptions);
-            vmParams.addProperty(PARAM_CATALINA_HOME, tomcatInstallationPath.toString());
+            vmParams.addProperty(PARAM_CATALINA_HOME, apusicInstallationPath.toString());
             vmParams.defineProperty(PARAM_CATALINA_BASE, workingPath.toString());
             vmParams.defineProperty(PARAM_CATALINA_TMPDIR, workingPath.resolve("temp").toString());
             vmParams.defineProperty(PARAM_LOGGING_CONFIG, confPath.resolve("logging.properties").toString());
@@ -189,7 +189,7 @@ public class ApusicCommandLineState extends JavaCommandLineState {
         PluginUtils.createTransformer().transform(new DOMSource(doc), new StreamResult(serverXml.toFile()));
     }
 
-    private void createContextFile(String tomcatVersion, Module module, Path confPath)
+    private void createContextFile(String apusicVersion, Module module, Path confPath)
             throws ParserConfigurationException, IOException, SAXException, TransformerException {
         String docBase = configuration.getDocBase();
         String contextPath = configuration.getContextPath();
@@ -207,7 +207,7 @@ public class ApusicCommandLineState extends JavaCommandLineState {
 
         contextRoot.setAttribute("docBase", docBase);
 
-        collectResources(doc, contextRoot, module, tomcatVersion);
+        collectResources(doc, contextRoot, module, apusicVersion);
         doc.appendChild(contextRoot);
 
         StringWriter writer = new StringWriter();
@@ -245,8 +245,8 @@ public class ApusicCommandLineState extends JavaCommandLineState {
         }
     }
 
-    private void collectResources(Document doc, Element contextRoot, Module module, String tomcatVersion) {
-        String majorVersionStr = tomcatVersion.split("\\.")[0];
+    private void collectResources(Document doc, Element contextRoot, Module module, String apusicVersion) {
+        String majorVersionStr = apusicVersion.split("\\.")[0];
         int majorVersion = Integer.parseInt(majorVersionStr);
         PathsList pathsList = OrderEnumerator.orderEntries(module)
                 .withoutSdk().runtimeOnly().productionOnly().getPathsList();
@@ -286,7 +286,7 @@ public class ApusicCommandLineState extends JavaCommandLineState {
             loader.setAttribute("virtualClasspath", StringUtil.join(pathsList.getPathList(), ";"));
             contextRoot.appendChild(loader);
         } else {
-            throw new RuntimeException("Unsupported Apusic version: " + tomcatVersion);
+            throw new RuntimeException("Unsupported Apusic version: " + apusicVersion);
         }
     }
 
@@ -309,9 +309,9 @@ public class ApusicCommandLineState extends JavaCommandLineState {
         return resources;
     }
 
-    private void deleteTomcatWorkFiles(Path tomcatHome) {
-        Path tomcatWorkPath = tomcatHome.resolve("work/Catalina/localhost");
-        FileUtil.processFilesRecursively(tomcatWorkPath.toFile(), file -> {
+    private void deleteTomcatWorkFiles(Path apusicHome) {
+        Path apusicWorkPath = apusicHome.resolve("work/Catalina/localhost");
+        FileUtil.processFilesRecursively(apusicWorkPath.toFile(), file -> {
             // Delete the work files except the session persistence files
             if (file.isFile() && !file.getName().endsWith(".ser")) {
                 FileUtil.delete(file);

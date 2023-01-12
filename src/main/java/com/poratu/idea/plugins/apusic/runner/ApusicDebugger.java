@@ -11,8 +11,8 @@ import org.jetbrains.annotations.NotNull;
  * Date   : 2017-02-17
  * Time   : 11:00 AM
  */
-public class TomcatDebugger extends GenericDebuggerRunner {
-    private static final String RUNNER_ID = "SmartTomcatDebugger";
+public class ApusicDebugger extends GenericDebuggerRunner {
+    private static final String RUNNER_ID = "SmartApusicDebugger";
 
     @Override
     @NotNull

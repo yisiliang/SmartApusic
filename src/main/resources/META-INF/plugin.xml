@@ -9,12 +9,12 @@
     <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationConfigurable instance="com.poratu.idea.plugins.apusic.setting.TomcatServersConfigurable" />
-        <applicationService serviceImplementation="com.poratu.idea.plugins.apusic.setting.TomcatServerManagerState"/>
+        <applicationConfigurable instance="com.poratu.idea.plugins.apusic.setting.ApusicServersConfigurable" />
+        <applicationService serviceImplementation="com.poratu.idea.plugins.apusic.setting.ApusicServerManagerState"/>
         <configurationType implementation="com.poratu.idea.plugins.apusic.conf.ApusicRunConfigurationType"/>
-        <runConfigurationProducer implementation="com.poratu.idea.plugins.apusic.runner.TomcatRunConfigurationProducer"/>
-        <programRunner implementation="com.poratu.idea.plugins.apusic.runner.TomcatRunner"/>
-        <programRunner implementation="com.poratu.idea.plugins.apusic.runner.TomcatDebugger"/>
+        <runConfigurationProducer implementation="com.poratu.idea.plugins.apusic.runner.ApusicRunConfigurationProducer"/>
+        <programRunner implementation="com.poratu.idea.plugins.apusic.runner.ApusicRunner"/>
+        <programRunner implementation="com.poratu.idea.plugins.apusic.runner.ApusicDebugger"/>
         <registryKey key="smartTomcat.resources.allowLinking" description="If enabled, symlinks will be allowed inside the web application, pointing to resources inside or outside the web application base path." defaultValue="false" restartRequired="false" />
         <registryKey key="smartTomcat.resources.cacheMaxSize" description="The maximum size of the static resource cache in kilobytes." defaultValue="10240" restartRequired="false" />
     </extensions>

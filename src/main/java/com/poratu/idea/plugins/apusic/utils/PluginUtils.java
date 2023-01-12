@@ -16,9 +16,9 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
 import com.poratu.idea.plugins.apusic.conf.ApusicRunConfiguration;
-import com.poratu.idea.plugins.apusic.setting.TomcatInfo;
-import com.poratu.idea.plugins.apusic.setting.TomcatServerManagerState;
-import com.poratu.idea.plugins.apusic.setting.TomcatServersConfigurable;
+import com.poratu.idea.plugins.apusic.setting.ApusicInfo;
+import com.poratu.idea.plugins.apusic.setting.ApusicServerManagerState;
+import com.poratu.idea.plugins.apusic.setting.ApusicServersConfigurable;
 import org.jetbrains.annotations.Nullable;
 
 import javax.xml.XMLConstants;
@@ -79,17 +79,17 @@ public final class PluginUtils {
         return maxSequent == 0 ? preferredName : preferredName + " (" + (maxSequent + 1) + ")";
     }
 
-    public static void chooseTomcat(Consumer<TomcatInfo> callback) {
+    public static void chooseTomcat(Consumer<ApusicInfo> callback) {
         chooseTomcat(null, callback);
     }
 
-    public static void chooseTomcat(UnaryOperator<String> nameGenerator, Consumer<TomcatInfo> callback) {
+    public static void chooseTomcat(UnaryOperator<String> nameGenerator, Consumer<ApusicInfo> callback) {
         FileChooserDescriptor descriptor = FileChooserDescriptorFactory
                 .createSingleFolderDescriptor()
                 .withTitle("Select Apusic Server")
                 .withDescription("Select the directory of the Apusic Server");
 
-        FileChooser.chooseFile(descriptor, null, null, file -> TomcatServerManagerState
+        FileChooser.chooseFile(descriptor, null, null, file -> ApusicServerManagerState
                 .createTomcatInfo(file.getPath(), nameGenerator)
                 .ifPresent(callback));
     }
@@ -153,7 +153,7 @@ public final class PluginUtils {
     }
 
     public static void openTomcatConfiguration() {
-        ShowSettingsUtil.getInstance().showSettingsDialog(null, TomcatServersConfigurable.class);
+        ShowSettingsUtil.getInstance().showSettingsDialog(null, ApusicServersConfigurable.class);
     }
 
     public static int parsePort(String text) throws ConfigurationException {

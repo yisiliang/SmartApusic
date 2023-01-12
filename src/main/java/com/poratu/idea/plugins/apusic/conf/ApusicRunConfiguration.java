@@ -30,8 +30,8 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import com.poratu.idea.plugins.apusic.setting.TomcatInfo;
-import com.poratu.idea.plugins.apusic.setting.TomcatServerManagerState;
+import com.poratu.idea.plugins.apusic.setting.ApusicInfo;
+import com.poratu.idea.plugins.apusic.setting.ApusicServerManagerState;
 import com.poratu.idea.plugins.apusic.utils.PluginUtils;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -65,14 +65,14 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
                 .collect(Collectors.toList());
     }
 
-    private TomcatRunConfigurationOptions tomcatOptions = new TomcatRunConfigurationOptions();
+    private TomcatRunConfigurationOptions apusicOptions = new TomcatRunConfigurationOptions();
 
     protected ApusicRunConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory, String name) {
         super(project, factory, name);
-        TomcatServerManagerState applicationService = ApplicationManager.getApplication().getService(TomcatServerManagerState.class);
-        List<TomcatInfo> tomcatInfos = applicationService.getTomcatInfos();
-        if (!tomcatInfos.isEmpty()) {
-            tomcatOptions.setTomcatInfo(tomcatInfos.get(0));
+        ApusicServerManagerState applicationService = ApplicationManager.getApplication().getService(ApusicServerManagerState.class);
+        List<ApusicInfo> apusicInfos = applicationService.getTomcatInfos();
+        if (!apusicInfos.isEmpty()) {
+            apusicOptions.setTomcatInfo(apusicInfos.get(0));
         }
         addPredefinedTomcatLogFiles();
     }
@@ -82,9 +82,9 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
     public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
         Project project = getProject();
         SettingsEditorGroup<ApusicRunConfiguration> group = new SettingsEditorGroup<>();
-        ApusicRunnerSettingsEditor tomcatSetting = new ApusicRunnerSettingsEditor(project);
+        ApusicRunnerSettingsEditor apusicSetting = new ApusicRunnerSettingsEditor(project);
 
-        group.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"), tomcatSetting);
+        group.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"), apusicSetting);
         group.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel<>());
         JavaRunConfigurationExtensionManager.getInstance().appendEditors(this, group);
         return group;
@@ -92,15 +92,15 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
 
     @Override
     public void checkConfiguration() throws RuntimeConfigurationException {
-        if (tomcatOptions.getTomcatInfo() == null) {
+        if (apusicOptions.getTomcatInfo() == null) {
             throw new RuntimeConfigurationError("Apusic server is not selected");
         }
 
-        if (StringUtil.isEmpty(tomcatOptions.getDocBase())) {
+        if (StringUtil.isEmpty(apusicOptions.getDocBase())) {
             throw new RuntimeConfigurationError("Deployment directory cannot be empty");
         }
 
-        if (tomcatOptions.getPort() == null || tomcatOptions.getAdminPort() == null) {
+        if (apusicOptions.getPort() == null || apusicOptions.getAdminPort() == null) {
             throw new RuntimeConfigurationError("Port cannot be empty");
         }
     }
@@ -115,10 +115,10 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
 
             if (!webRoots.isEmpty()) {
                 VirtualFile webRoot = webRoots.get(0);
-                tomcatOptions.setDocBase(webRoot.getPath());
+                apusicOptions.setDocBase(webRoot.getPath());
                 Module module = ModuleUtilCore.findModuleForFile(webRoot, project);
                 if (module != null) {
-                    tomcatOptions.setContextPath("/" + PluginUtils.extractContextPath(module));
+                    apusicOptions.setContextPath("/" + PluginUtils.extractContextPath(module));
                 }
             }
         } catch (Exception e) {
@@ -153,7 +153,7 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
     @Override
     public void readExternal(@NotNull Element element) throws InvalidDataException {
         super.readExternal(element);
-        XmlSerializer.deserializeInto(element, tomcatOptions);
+        XmlSerializer.deserializeInto(element, apusicOptions);
 
         if (getAllLogFiles().isEmpty()) {
             addPredefinedTomcatLogFiles();
@@ -163,7 +163,7 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
     @Override
     public void writeExternal(@NotNull Element element) throws WriteExternalException {
         super.writeExternal(element);
-        XmlSerializer.serializeObjectInto(tomcatOptions, element);
+        XmlSerializer.serializeObjectInto(apusicOptions, element);
     }
 
     private void addPredefinedTomcatLogFiles() {
@@ -173,8 +173,8 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
     @Nullable
     public Module getModule() {
         Module module = null;
-        if (tomcatOptions.getDocBase() != null) {
-            VirtualFile virtualFile = VfsUtil.findFile(Paths.get(tomcatOptions.getDocBase()), true);
+        if (apusicOptions.getDocBase() != null) {
+            VirtualFile virtualFile = VfsUtil.findFile(Paths.get(apusicOptions.getDocBase()), true);
             if (virtualFile != null) {
                 module = ReadAction.compute(() -> ModuleUtilCore.findModuleForFile(virtualFile, getProject()));
             }
@@ -182,79 +182,79 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         return module;
     }
 
-    public TomcatInfo getTomcatInfo() {
-        return tomcatOptions.getTomcatInfo();
+    public ApusicInfo getTomcatInfo() {
+        return apusicOptions.getTomcatInfo();
     }
 
-    public void setTomcatInfo(TomcatInfo tomcatInfo) {
-        tomcatOptions.setTomcatInfo(tomcatInfo);
+    public void setTomcatInfo(ApusicInfo apusicInfo) {
+        apusicOptions.setTomcatInfo(apusicInfo);
     }
 
     public String getDocBase() {
-        return tomcatOptions.getDocBase();
+        return apusicOptions.getDocBase();
     }
 
     public void setDocBase(String docBase) {
-        tomcatOptions.setDocBase(docBase);
+        apusicOptions.setDocBase(docBase);
     }
 
     public String getContextPath() {
-        return tomcatOptions.getContextPath();
+        return apusicOptions.getContextPath();
     }
 
     public void setContextPath(String contextPath) {
-        tomcatOptions.setContextPath(contextPath);
+        apusicOptions.setContextPath(contextPath);
     }
 
     public Integer getPort() {
-        return tomcatOptions.getPort();
+        return apusicOptions.getPort();
     }
 
     public void setPort(Integer port) {
-        tomcatOptions.setPort(port);
+        apusicOptions.setPort(port);
     }
 
     public Integer getAdminPort() {
-        return tomcatOptions.getAdminPort();
+        return apusicOptions.getAdminPort();
     }
 
     public void setAdminPort(Integer adminPort) {
-        tomcatOptions.setAdminPort(adminPort);
+        apusicOptions.setAdminPort(adminPort);
     }
 
     public String getVmOptions() {
-        return tomcatOptions.getVmOptions();
+        return apusicOptions.getVmOptions();
     }
 
     public void setVmOptions(String vmOptions) {
-        tomcatOptions.setVmOptions(vmOptions);
+        apusicOptions.setVmOptions(vmOptions);
     }
 
     public Map<String, String> getEnvOptions() {
-        return tomcatOptions.getEnvOptions();
+        return apusicOptions.getEnvOptions();
     }
 
     public void setEnvOptions(Map<String, String> envOptions) {
-        tomcatOptions.setEnvOptions(envOptions);
+        apusicOptions.setEnvOptions(envOptions);
     }
 
     public Boolean isPassParentEnvs() {
-        return tomcatOptions.isPassParentEnvs();
+        return apusicOptions.isPassParentEnvs();
     }
 
     public void setPassParentEnvironmentVariables(Boolean passParentEnvs) {
-        tomcatOptions.setPassParentEnvs(passParentEnvs);
+        apusicOptions.setPassParentEnvs(passParentEnvs);
     }
 
     @Override
     public RunConfiguration clone() {
         ApusicRunConfiguration configuration = (ApusicRunConfiguration) super.clone();
-        configuration.tomcatOptions = XmlSerializerUtil.createCopy(tomcatOptions);
+        configuration.apusicOptions = XmlSerializerUtil.createCopy(apusicOptions);
         return configuration;
     }
 
     private static class TomcatRunConfigurationOptions implements Serializable {
-        private TomcatInfo tomcatInfo;
+        private ApusicInfo apusicInfo;
 
         private String docBase;
         private String contextPath;
@@ -264,12 +264,12 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         private Map<String, String> envOptions;
         private Boolean passParentEnvs = true;
 
-        public TomcatInfo getTomcatInfo() {
-            return tomcatInfo;
+        public ApusicInfo getTomcatInfo() {
+            return apusicInfo;
         }
 
-        public void setTomcatInfo(TomcatInfo tomcatInfo) {
-            this.tomcatInfo = tomcatInfo;
+        public void setTomcatInfo(ApusicInfo apusicInfo) {
+            this.apusicInfo = apusicInfo;
         }
 
         @Nullable

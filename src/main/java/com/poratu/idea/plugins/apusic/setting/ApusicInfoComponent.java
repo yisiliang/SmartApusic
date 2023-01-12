@@ -8,13 +8,13 @@ import com.intellij.util.ui.UIUtil;
 
 import javax.swing.*;
 
-public class TomcatInfoComponent implements Disposable {
+public class ApusicInfoComponent implements Disposable {
 
     private JPanel mainPanel;
 
-    public TomcatInfoComponent(TomcatInfo tomcatInfo) {
-        JBLabel versionLabel = new JBLabel(tomcatInfo.getVersion());
-        JBLabel locationLabel = new JBLabel(tomcatInfo.getPath());
+    public ApusicInfoComponent(ApusicInfo apusicInfo) {
+        JBLabel versionLabel = new JBLabel(apusicInfo.getVersion());
+        JBLabel locationLabel = new JBLabel(apusicInfo.getPath());
         mainPanel = FormBuilder.createFormBuilder()
                 .setVerticalGap(UIUtil.LARGE_VGAP)
                 .addLabeledComponent("Version:", versionLabel)

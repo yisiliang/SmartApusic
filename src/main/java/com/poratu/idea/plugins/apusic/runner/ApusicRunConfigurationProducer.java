@@ -15,15 +15,15 @@ import com.intellij.psi.PsiElement;
 import com.intellij.util.containers.ContainerUtil;
 import com.poratu.idea.plugins.apusic.conf.ApusicRunConfiguration;
 import com.poratu.idea.plugins.apusic.conf.ApusicRunConfigurationType;
-import com.poratu.idea.plugins.apusic.setting.TomcatInfo;
-import com.poratu.idea.plugins.apusic.setting.TomcatServerManagerState;
+import com.poratu.idea.plugins.apusic.setting.ApusicInfo;
+import com.poratu.idea.plugins.apusic.setting.ApusicServerManagerState;
 import com.poratu.idea.plugins.apusic.utils.PluginUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class TomcatRunConfigurationProducer extends LazyRunConfigurationProducer<ApusicRunConfiguration> {
+public class ApusicRunConfigurationProducer extends LazyRunConfigurationProducer<ApusicRunConfiguration> {
     @NotNull
     @Override
     public ConfigurationFactory getConfigurationFactory() {
@@ -48,9 +48,9 @@ public class TomcatRunConfigurationProducer extends LazyRunConfigurationProducer
             return false;
         }
 
-        List<TomcatInfo> tomcatInfos = TomcatServerManagerState.getInstance().getTomcatInfos();
-        if (!tomcatInfos.isEmpty()) {
-            configuration.setTomcatInfo(tomcatInfos.get(0));
+        List<ApusicInfo> apusicInfos = ApusicServerManagerState.getInstance().getTomcatInfos();
+        if (!apusicInfos.isEmpty()) {
+            configuration.setTomcatInfo(apusicInfos.get(0));
         }
         String contextPath = PluginUtils.extractContextPath(module);
         configuration.setName("Apusic: " + contextPath);

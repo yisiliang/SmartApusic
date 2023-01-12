@@ -19,7 +19,7 @@ import java.util.List;
  * Date   : 2017-02-23
  * Time   : 00:14
  */
-public class TomcatServersConfigurable extends MasterDetailsComponent {
+public class ApusicServersConfigurable extends MasterDetailsComponent {
 
     @Override
     public String getDisplayName() {
@@ -31,7 +31,7 @@ public class TomcatServersConfigurable extends MasterDetailsComponent {
         return "Smart Apusic Help";
     }
 
-    public TomcatServersConfigurable() {
+    public ApusicServersConfigurable() {
         initTree();
     }
 
@@ -51,7 +51,7 @@ public class TomcatServersConfigurable extends MasterDetailsComponent {
             return true;
         }
 
-        int size = TomcatServerManagerState.getInstance().getTomcatInfos().size();
+        int size = ApusicServerManagerState.getInstance().getTomcatInfos().size();
         return myRoot.getChildCount() != size;
     }
 
@@ -59,8 +59,8 @@ public class TomcatServersConfigurable extends MasterDetailsComponent {
     public void reset() {
         myRoot.removeAllChildren();
 
-        TomcatServerManagerState state = TomcatServerManagerState.getInstance();
-        for (TomcatInfo info : state.getTomcatInfos()) {
+        ApusicServerManagerState state = ApusicServerManagerState.getInstance();
+        for (ApusicInfo info : state.getTomcatInfos()) {
             addNode(info, false);
         }
         super.reset();
@@ -70,23 +70,23 @@ public class TomcatServersConfigurable extends MasterDetailsComponent {
     public void apply() throws ConfigurationException {
         super.apply();
 
-        List<TomcatInfo> tomcatInfos = TomcatServerManagerState.getInstance().getTomcatInfos();
-        tomcatInfos.clear();
+        List<ApusicInfo> apusicInfos = ApusicServerManagerState.getInstance().getTomcatInfos();
+        apusicInfos.clear();
 
         for (int i = 0; i < myRoot.getChildCount(); i++) {
-            TomcatInfoConfigurable configurable = (TomcatInfoConfigurable) ((MyNode) myRoot.getChildAt(i)).getConfigurable();
-            tomcatInfos.add(configurable.getEditableObject());
+            ApusicInfoConfigurable configurable = (ApusicInfoConfigurable) ((MyNode) myRoot.getChildAt(i)).getConfigurable();
+            apusicInfos.add(configurable.getEditableObject());
         }
     }
 
     @Override
     protected boolean wasObjectStored(Object editableObject) {
         // noinspection SuspiciousMethodCalls
-        return TomcatServerManagerState.getInstance().getTomcatInfos().contains(editableObject);
+        return ApusicServerManagerState.getInstance().getTomcatInfos().contains(editableObject);
     }
 
-    private void addNode(TomcatInfo tomcatInfo, boolean selectInTree) {
-        TomcatInfoConfigurable configurable = new TomcatInfoConfigurable(tomcatInfo, TREE_UPDATER, this::validateName);
+    private void addNode(ApusicInfo apusicInfo, boolean selectInTree) {
+        ApusicInfoConfigurable configurable = new ApusicInfoConfigurable(apusicInfo, TREE_UPDATER, this::validateName);
         MyNode node = new MyNode(configurable);
         addNode(node, myRoot);
 
@@ -97,7 +97,7 @@ public class TomcatServersConfigurable extends MasterDetailsComponent {
 
     private void validateName(String name) throws ConfigurationException {
         for (int i = 0; i < myRoot.getChildCount(); i++) {
-            TomcatInfoConfigurable configurable = (TomcatInfoConfigurable) ((MyNode) myRoot.getChildAt(i)).getConfigurable();
+            ApusicInfoConfigurable configurable = (ApusicInfoConfigurable) ((MyNode) myRoot.getChildAt(i)).getConfigurable();
             if (configurable.getEditableObject().getName().equals(name)) {
                 throw new ConfigurationException("Duplicate name: \"" + name + "\"");
             }
@@ -112,7 +112,7 @@ public class TomcatServersConfigurable extends MasterDetailsComponent {
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
-            PluginUtils.chooseTomcat(this::createUniqueName, tomcatInfo -> addNode(tomcatInfo, true));
+            PluginUtils.chooseTomcat(this::createUniqueName, apusicInfo -> addNode(apusicInfo, true));
         }
 
         private String createUniqueName(String preferredName) {

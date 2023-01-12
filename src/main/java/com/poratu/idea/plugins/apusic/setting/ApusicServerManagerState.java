@@ -31,44 +31,44 @@ import java.util.zip.ZipEntry;
  */
 
 @State(name = "ServerConfiguration", storages = @Storage("smart.apusic.xml"))
-public class TomcatServerManagerState implements PersistentStateComponent<TomcatServerManagerState> {
+public class ApusicServerManagerState implements PersistentStateComponent<ApusicServerManagerState> {
 
-    @XCollection(elementTypes = TomcatInfo.class)
-    private final List<TomcatInfo> tomcatInfos = new ArrayList<>();
+    @XCollection(elementTypes = ApusicInfo.class)
+    private final List<ApusicInfo> apusicInfos = new ArrayList<>();
 
-    public static TomcatServerManagerState getInstance() {
-        return ApplicationManager.getApplication().getService(TomcatServerManagerState.class);
+    public static ApusicServerManagerState getInstance() {
+        return ApplicationManager.getApplication().getService(ApusicServerManagerState.class);
     }
 
     @NotNull
-    public List<TomcatInfo> getTomcatInfos() {
-        return tomcatInfos;
+    public List<ApusicInfo> getTomcatInfos() {
+        return apusicInfos;
     }
 
     @Nullable
     @Override
-    public TomcatServerManagerState getState() {
+    public ApusicServerManagerState getState() {
         return this;
     }
 
     @Override
-    public void loadState(@NotNull TomcatServerManagerState tomcatSettingsState) {
-        XmlSerializerUtil.copyBean(tomcatSettingsState, this);
+    public void loadState(@NotNull ApusicServerManagerState apusicSettingsState) {
+        XmlSerializerUtil.copyBean(apusicSettingsState, this);
     }
 
-    public static Optional<TomcatInfo> createTomcatInfo(String tomcatHome) {
-        return createTomcatInfo(tomcatHome, TomcatServerManagerState::generateTomcatName);
+    public static Optional<ApusicInfo> createTomcatInfo(String apusicHome) {
+        return createTomcatInfo(apusicHome, ApusicServerManagerState::generateTomcatName);
     }
 
-    public static Optional<TomcatInfo> createTomcatInfo(String tomcatHome, UnaryOperator<String> nameGenerator) {
-        File jarFile = Paths.get(tomcatHome, "lib/catalina.jar").toFile();
+    public static Optional<ApusicInfo> createTomcatInfo(String apusicHome, UnaryOperator<String> nameGenerator) {
+        File jarFile = Paths.get(apusicHome, "lib/catalina.jar").toFile();
         if (!jarFile.exists()) {
-            Messages.showErrorDialog("Can not find catalina.jar in " + tomcatHome, "Error");
+            Messages.showErrorDialog("Can not find catalina.jar in " + apusicHome, "Error");
             return Optional.empty();
         }
 
-        final TomcatInfo tomcatInfo = new TomcatInfo();
-        tomcatInfo.setPath(tomcatHome);
+        final ApusicInfo apusicInfo = new ApusicInfo();
+        apusicInfo.setPath(apusicHome);
 
         try (JarFile jar = new JarFile(jarFile)) {
             ZipEntry entry = jar.getEntry("org/apache/catalina/util/ServerInfo.properties");
@@ -79,20 +79,20 @@ public class TomcatServerManagerState implements PersistentStateComponent<Tomcat
             String serverInfo = p.getProperty("server.info");
             String serverNumber = p.getProperty("server.number");
             String name = nameGenerator == null ? generateTomcatName(serverInfo) : nameGenerator.apply(serverInfo);
-            tomcatInfo.setName(name);
-            tomcatInfo.setVersion(serverNumber);
+            apusicInfo.setName(name);
+            apusicInfo.setVersion(serverNumber);
         } catch (IOException e) {
-            Messages.showErrorDialog("Can not read server version in " + tomcatHome, "Error");
+            Messages.showErrorDialog("Can not read server version in " + apusicHome, "Error");
             return Optional.empty();
         }
 
-        return Optional.of(tomcatInfo);
+        return Optional.of(apusicInfo);
     }
 
     private static String generateTomcatName(String name) {
-        List<TomcatInfo> existingServers = getInstance().getTomcatInfos();
+        List<ApusicInfo> existingServers = getInstance().getTomcatInfos();
         List<String> existingNames = existingServers.stream()
-                .map(TomcatInfo::getName)
+                .map(ApusicInfo::getName)
                 .collect(Collectors.toList());
 
         return PluginUtils.generateSequentName(existingNames, name);

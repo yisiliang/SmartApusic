@@ -7,17 +7,17 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class TomcatInfoConfigurable extends NamedConfigurable<TomcatInfo> {
-    private final TomcatInfo tomcatInfo;
-    private final TomcatInfoComponent tomcatInfoView;
+public class ApusicInfoConfigurable extends NamedConfigurable<ApusicInfo> {
+    private final ApusicInfo apusicInfo;
+    private final ApusicInfoComponent apusicInfoView;
     private String displayName;
-    private final TomcatNameValidator<String> nameValidator;
+    private final ApusicNameValidator<String> nameValidator;
 
-    public TomcatInfoConfigurable(TomcatInfo tomcatInfo, Runnable treeUpdater, TomcatNameValidator<String> nameValidator) {
+    public ApusicInfoConfigurable(ApusicInfo apusicInfo, Runnable treeUpdater, ApusicNameValidator<String> nameValidator) {
         super(true, treeUpdater);
-        this.tomcatInfo = tomcatInfo;
-        this.tomcatInfoView = new TomcatInfoComponent(tomcatInfo);
-        this.displayName = tomcatInfo.getName();
+        this.apusicInfo = apusicInfo;
+        this.apusicInfoView = new ApusicInfoComponent(apusicInfo);
+        this.displayName = apusicInfo.getName();
         this.nameValidator = nameValidator;
     }
 
@@ -27,8 +27,8 @@ public class TomcatInfoConfigurable extends NamedConfigurable<TomcatInfo> {
     }
 
     @Override
-    public TomcatInfo getEditableObject() {
-        return tomcatInfo;
+    public ApusicInfo getEditableObject() {
+        return apusicInfo;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class TomcatInfoConfigurable extends NamedConfigurable<TomcatInfo> {
 
     @Override
     public JComponent createOptionsPanel() {
-        return tomcatInfoView.getMainPanel();
+        return apusicInfoView.getMainPanel();
     }
 
     @Override
@@ -49,7 +49,7 @@ public class TomcatInfoConfigurable extends NamedConfigurable<TomcatInfo> {
     @Override
     protected void checkName(@NonNls @NotNull String name) throws ConfigurationException {
         super.checkName(name);
-        if (name.equals(tomcatInfo.getName())) {
+        if (name.equals(apusicInfo.getName())) {
             return;
         }
         nameValidator.validate(name);
@@ -57,16 +57,12 @@ public class TomcatInfoConfigurable extends NamedConfigurable<TomcatInfo> {
 
     @Override
     public boolean isModified() {
-        return !displayName.equals(tomcatInfo.getName());
+        return !displayName.equals(apusicInfo.getName());
     }
 
     @Override
     public void apply() {
-        tomcatInfo.setName(displayName);
+        apusicInfo.setName(displayName);
     }
 }
 
-@FunctionalInterface
-interface TomcatNameValidator<T> {
-    void validate(T t) throws ConfigurationException;
-}
