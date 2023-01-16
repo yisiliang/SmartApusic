@@ -2,7 +2,7 @@
 <!-- Plugin description -->
 The Apusic plugin for Intellij IDEA
 
-Run/Debug Apusic Application server from Idea.
+Run/Debug Apusic Application Server with IDEA.
 
 <!-- Plugin description end -->
 
