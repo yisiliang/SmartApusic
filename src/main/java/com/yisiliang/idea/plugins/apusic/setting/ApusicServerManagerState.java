@@ -1,4 +1,4 @@
-package com.poratu.idea.plugins.apusic.setting;
+package com.yisiliang.idea.plugins.apusic.setting;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -7,7 +7,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.XCollection;
-import com.poratu.idea.plugins.apusic.utils.PluginUtils;
+import com.yisiliang.idea.plugins.apusic.utils.PluginUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

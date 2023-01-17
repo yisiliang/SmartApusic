@@ -1,9 +1,9 @@
-package com.poratu.idea.plugins.apusic.runner;
+package com.yisiliang.idea.plugins.apusic.runner;
 
 import com.intellij.debugger.impl.GenericDebuggerRunner;
 import com.intellij.execution.configurations.RunProfile;
 import com.intellij.execution.executors.DefaultDebugExecutor;
-import com.poratu.idea.plugins.apusic.conf.ApusicRunConfiguration;
+import com.yisiliang.idea.plugins.apusic.conf.ApusicRunConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 /**

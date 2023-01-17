@@ -1,4 +1,4 @@
-package com.poratu.idea.plugins.apusic.utils;
+package com.yisiliang.idea.plugins.apusic.utils;
 
 import com.intellij.execution.Location;
 import com.intellij.openapi.fileChooser.FileChooser;
@@ -14,10 +14,10 @@ import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
-import com.poratu.idea.plugins.apusic.conf.ApusicRunConfiguration;
-import com.poratu.idea.plugins.apusic.setting.ApusicInfo;
-import com.poratu.idea.plugins.apusic.setting.ApusicServerManagerState;
-import com.poratu.idea.plugins.apusic.setting.ApusicServersConfigurable;
+import com.yisiliang.idea.plugins.apusic.conf.ApusicRunConfiguration;
+import com.yisiliang.idea.plugins.apusic.setting.ApusicInfo;
+import com.yisiliang.idea.plugins.apusic.setting.ApusicServerManagerState;
+import com.yisiliang.idea.plugins.apusic.setting.ApusicServersConfigurable;
 import org.jetbrains.annotations.Nullable;
 
 import javax.xml.XMLConstants;

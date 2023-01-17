@@ -1,4 +1,4 @@
-package com.poratu.idea.plugins.apusic.conf;
+package com.yisiliang.idea.plugins.apusic.conf;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;

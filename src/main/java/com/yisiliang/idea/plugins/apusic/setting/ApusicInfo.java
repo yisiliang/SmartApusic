@@ -1,4 +1,4 @@
-package com.poratu.idea.plugins.apusic.setting;
+package com.yisiliang.idea.plugins.apusic.setting;
 
 import java.io.Serializable;
 import java.util.Objects;

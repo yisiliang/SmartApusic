@@ -1,4 +1,4 @@
-package com.poratu.idea.plugins.apusic.conf;
+package com.yisiliang.idea.plugins.apusic.conf;
 
 import com.intellij.execution.configurations.LogFileOptions;
 import com.intellij.execution.configurations.PredefinedLogFile;

@@ -1,4 +1,4 @@
-package com.poratu.idea.plugins.apusic.setting;
+package com.yisiliang.idea.plugins.apusic.setting;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -7,7 +7,7 @@ import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.ui.MasterDetailsComponent;
 import com.intellij.ui.CommonActionsPanel;
 import com.intellij.util.IconUtil;
-import com.poratu.idea.plugins.apusic.utils.PluginUtils;
+import com.yisiliang.idea.plugins.apusic.utils.PluginUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

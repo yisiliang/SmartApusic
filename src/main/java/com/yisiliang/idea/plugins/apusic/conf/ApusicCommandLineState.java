@@ -1,4 +1,4 @@
-package com.poratu.idea.plugins.apusic.conf;
+package com.yisiliang.idea.plugins.apusic.conf;
 
 import com.intellij.debugger.settings.DebuggerSettings;
 import com.intellij.execution.ExecutionException;
@@ -14,9 +14,7 @@ import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.io.FileFilters;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.util.PathUtil;
-import com.poratu.idea.plugins.apusic.utils.PluginUtils;
+import com.yisiliang.idea.plugins.apusic.utils.PluginUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

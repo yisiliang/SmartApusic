@@ -1,4 +1,4 @@
-package com.poratu.idea.plugins.apusic.conf;
+package com.yisiliang.idea.plugins.apusic.conf;
 
 import com.intellij.execution.impl.ConsoleViewImpl;
 import com.intellij.execution.ui.ConsoleViewContentType;

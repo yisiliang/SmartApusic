@@ -1,4 +1,4 @@
-package com.poratu.idea.plugins.apusic.setting;
+package com.yisiliang.idea.plugins.apusic.setting;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.NamedConfigurable;

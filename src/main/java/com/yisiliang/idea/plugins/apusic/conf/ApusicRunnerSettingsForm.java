@@ -1,4 +1,4 @@
-package com.poratu.idea.plugins.apusic.conf;
+package com.yisiliang.idea.plugins.apusic.conf;
 
 import com.intellij.execution.configuration.EnvironmentVariablesTextFieldWithBrowseButton;
 import com.intellij.icons.AllIcons;
@@ -19,9 +19,9 @@ import com.intellij.ui.UIBundle;
 import com.intellij.ui.components.fields.ExtendableTextComponent;
 import com.intellij.ui.components.fields.ExtendableTextField;
 import com.intellij.util.ui.FormBuilder;
-import com.poratu.idea.plugins.apusic.setting.ApusicInfo;
-import com.poratu.idea.plugins.apusic.setting.ApusicServerManagerState;
-import com.poratu.idea.plugins.apusic.utils.PluginUtils;
+import com.yisiliang.idea.plugins.apusic.setting.ApusicInfo;
+import com.yisiliang.idea.plugins.apusic.setting.ApusicServerManagerState;
+import com.yisiliang.idea.plugins.apusic.utils.PluginUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -72,7 +72,8 @@ public class ApusicRunnerSettingsForm implements Disposable {
 
     public void resetFrom(ApusicRunConfiguration configuration) {
         apusicComboBox.setSelectedItem(configuration.getApusicInfo());
-        if (StringUtil.isEmpty(configuration.getDomain())) {
+        if (configuration.getApusicInfo().getPath() != null
+                && StringUtil.isEmpty(configuration.getDomain())) {
             File file = new File(configuration.getApusicInfo().getPath(), "domains");
             file = new File(file, "mydomain");
             domainField.setText(file.getAbsolutePath());

@@ -1,4 +1,4 @@
-package com.poratu.idea.plugins.apusic.conf;
+package com.yisiliang.idea.plugins.apusic.conf;
 
 import com.intellij.configurationStore.XmlSerializer;
 import com.intellij.diagnostic.logging.LogConfigurationPanel;
@@ -17,9 +17,9 @@ import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import com.poratu.idea.plugins.apusic.setting.ApusicInfo;
-import com.poratu.idea.plugins.apusic.setting.ApusicServerManagerState;
-import com.poratu.idea.plugins.apusic.utils.PluginUtils;
+import com.yisiliang.idea.plugins.apusic.setting.ApusicInfo;
+import com.yisiliang.idea.plugins.apusic.setting.ApusicServerManagerState;
+import com.yisiliang.idea.plugins.apusic.utils.PluginUtils;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

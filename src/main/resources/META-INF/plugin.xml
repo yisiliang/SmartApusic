@@ -9,16 +9,21 @@
     <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationConfigurable instance="com.poratu.idea.plugins.apusic.setting.ApusicServersConfigurable" />
-        <applicationService serviceImplementation="com.poratu.idea.plugins.apusic.setting.ApusicServerManagerState"/>
-        <configurationType implementation="com.poratu.idea.plugins.apusic.conf.ApusicRunConfigurationType"/>
-        <runConfigurationProducer implementation="com.poratu.idea.plugins.apusic.runner.ApusicRunConfigurationProducer"/>
-        <programRunner implementation="com.poratu.idea.plugins.apusic.runner.ApusicRunner"/>
-        <programRunner implementation="com.poratu.idea.plugins.apusic.runner.ApusicDebugger"/>
+        <applicationConfigurable instance="com.yisiliang.idea.plugins.apusic.setting.ApusicServersConfigurable" />
+        <applicationService serviceImplementation="com.yisiliang.idea.plugins.apusic.setting.ApusicServerManagerState"/>
+        <configurationType implementation="com.yisiliang.idea.plugins.apusic.conf.ApusicRunConfigurationType"/>
+        <runConfigurationProducer implementation="com.yisiliang.idea.plugins.apusic.runner.ApusicRunConfigurationProducer"/>
+        <programRunner implementation="com.yisiliang.idea.plugins.apusic.runner.ApusicRunner"/>
+        <programRunner implementation="com.yisiliang.idea.plugins.apusic.runner.ApusicDebugger"/>
         <registryKey key="smartApusic.resources.allowLinking" description="If enabled, symlinks will be allowed inside the web application, pointing to resources inside or outside the web application base path." defaultValue="false" restartRequired="false" />
         <registryKey key="smartApusic.resources.cacheMaxSize" description="The maximum size of the static resource cache in kilobytes." defaultValue="10240" restartRequired="false" />
     </extensions>
 
     <actions/>
+    <description>
+        The Apusic plugin for Intellij IDEA.
+        Run/Debug Apusic Application Server with IDEA.
+        Apusic Application Server(AAS) is a Web Application Server developed by KingDee.
+    </description>
 
 </idea-plugin>

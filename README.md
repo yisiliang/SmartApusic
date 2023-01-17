@@ -1,9 +1,8 @@
 # SmartApusic (clone from SmartTomcat)
 <!-- Plugin description -->
-The Apusic plugin for Intellij IDEA
-
+The Apusic plugin for Intellij IDEA.
 Run/Debug Apusic Application Server with IDEA.
-
+Apusic Application Server(AAS) is a Web Application Server developed by KingDee.
 <!-- Plugin description end -->
 
 
