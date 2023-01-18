@@ -1,39 +1,15 @@
-# SmartApusic (clone from SmartTomcat)
+# SmartApusic
 <!-- Plugin description -->
-The Apusic plugin for Intellij IDEA.
+## The Apusic plugin for Intellij IDEA.
 Run/Debug Apusic Application Server with IDEA.
 Apusic Application Server(AAS) is a Web Application Server developed by KingDee.
+
+## User Guide
+### 1. In Run/Debug, choose SmartApusic
+### 2. Config the run/debug config</br>
+* Apusic Server: config or choose Apusic server
+* Domain : default domain is $APUSIC_HOME/domains/mydomain
+* VM Options : input the vm options, e.g. "-server -Xmx1024m -Xms1024m"
+* Env Options : extract apusic env parameters, e.g. "e.g. param1=value1"
+### 3. Start run/debug
 <!-- Plugin description end -->
-
-
-### User Guide
-* Apusic Server Setting
-
-        Navigate File -> Setting or Ctrl + Alt + S  Open System Settings.
-        In the Setting UI, go to Apusic Server, and then add your apusic servers
- 
-* Run/Debug setup
-        
-        Navigat Run -> Edit Configrations to Open Run/Debug Configrations. 
-        In the Run/Debug Configrations, add new configration, choose Smart Apusic, 
-        for detail config as below
-        
-  
-* Run/Debug config detail
-    * Apusic Server
-        
-            choose the apusic server.
-         
-    * Domain
-    
-            default domain is $APUSIC_HOME/domains/mydomain
-
-    * VM Options
-
-          extract apusic VM options
-          e.g. -Duser.language=en
-    
-    * Env Options
-        
-            extract apusic env parmaters
-            e.g. param1=value1
