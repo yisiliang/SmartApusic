@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleFileIndex;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.util.io.FileFilters;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
@@ -20,18 +21,12 @@ import com.yisiliang.idea.plugins.apusic.setting.ApusicServerManagerState;
 import com.yisiliang.idea.plugins.apusic.setting.ApusicServersConfigurable;
 import org.jetbrains.annotations.Nullable;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
@@ -94,7 +89,6 @@ public final class PluginUtils {
     }
 
     public static Path getWorkingPath(ApusicRunConfiguration configuration) {
-
         String userHome = System.getProperty("user.home");
         Project project = configuration.getProject();
         return Paths.get(userHome, ".SmartApusic", project.getName());
@@ -108,42 +102,6 @@ public final class PluginUtils {
         return null;
     }
 
-    @SuppressWarnings("HttpUrlsUsage")
-    public static DocumentBuilder createDocumentBuilder() throws ParserConfigurationException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-
-        try {
-            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-            dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-        } catch (IllegalArgumentException ignored) {
-            // Some Java implementations do not support these features
-        }
-
-        dbf.setExpandEntityReferences(false);
-
-        return dbf.newDocumentBuilder();
-    }
-
-    @SuppressWarnings("HttpUrlsUsage")
-    public static Transformer createTransformer() throws TransformerConfigurationException {
-        TransformerFactory factory = TransformerFactory.newInstance();
-
-        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
-
-        Transformer transformer = factory.newTransformer();
-        try {
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-        } catch (IllegalArgumentException ignored) {
-            // ignore
-        }
-        return transformer;
-    }
 
     public static void openApusicConfiguration() {
         ShowSettingsUtil.getInstance().showSettingsDialog(null, ApusicServersConfigurable.class);
@@ -211,5 +169,15 @@ public final class PluginUtils {
         }
 
         return ProjectFileIndex.getInstance(location.getProject()).isInTestSourceContent(file);
+    }
+
+    public static List<File> listJars(File dir) {
+        File[] ret = dir.listFiles(FileFilters.filesWithExtension("jar"));
+        List<File> fileList = new ArrayList<>();
+        if (ret == null) {
+            return fileList;
+        }
+        fileList.addAll(Arrays.asList(ret));
+        return fileList;
     }
 }

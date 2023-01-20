@@ -158,6 +158,22 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         apusicOptions.setVmOptions(vmOptions);
     }
 
+    public String getDocBase() {
+        return apusicOptions.getDocBase();
+    }
+
+    public void setDocBase(String docBase) {
+        apusicOptions.setDocBase(docBase);
+    }
+
+    public String getContextPath() {
+        return apusicOptions.getContextPath();
+    }
+
+    public void setContextPath(String contextPath) {
+        apusicOptions.setContextPath(contextPath);
+    }
+
     public Map<String, String> getEnvOptions() {
         return apusicOptions.getEnvOptions();
     }
@@ -187,6 +203,24 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         private String vmOptions = "-server -Xms1024m -Xmx1024m";
         private Map<String, String> envOptions;
         private Boolean passParentEnvs = true;
+        private String contextPath;
+        private String docBase;
+
+        public String getDocBase() {
+            return docBase;
+        }
+
+        public void setDocBase(String docBase) {
+            this.docBase = docBase;
+        }
+
+        public String getContextPath() {
+            return contextPath;
+        }
+
+        public void setContextPath(String contextPath) {
+            this.contextPath = contextPath;
+        }
 
         public ApusicInfo getApusicInfo() {
             return apusicInfo;

@@ -11,6 +11,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.TextComponentAccessor;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.CollectionComboBoxModel;
@@ -38,6 +39,9 @@ public class ApusicRunnerSettingsForm implements Disposable {
     private final Project project;
     private final JPanel apusicField = new JPanel(new BorderLayout());
     private final JTextField domainField = new JTextField();
+    private final JTextField contextPathField = new JTextField();
+    private final TextFieldWithBrowseButton docBaseField = new TextFieldWithBrowseButton();
+
     private final ApusicComboBox apusicComboBox = new ApusicComboBox(domainField);
     private final RawCommandLineEditor vmOptions = new RawCommandLineEditor();
     private final EnvironmentVariablesTextFieldWithBrowseButton envOptions = new EnvironmentVariablesTextFieldWithBrowseButton();
@@ -59,12 +63,21 @@ public class ApusicRunnerSettingsForm implements Disposable {
         FormBuilder builder = FormBuilder.createFormBuilder()
                 .addLabeledComponent("Apusic server:", apusicField)
                 .addLabeledComponent("Domain:", domainField)
+                .addLabeledComponent("Deployment directory:", docBaseField)
+                .addLabeledComponent("Context path:", contextPathField)
                 .addLabeledComponent("VM options:", vmOptions)
                 .addLabeledComponent("Env options:", envOptions)
                 .addComponentFillVertically(new JPanel(), 0);
-
+        initDeploymentDirectory();
         mainPanel = builder.getPanel();
     }
+
+    private void initDeploymentDirectory() {
+        FileChooserDescriptor descriptor = new IgnoreOutputFileChooserDescriptor(project);
+        docBaseField.addBrowseFolderListener("Select Deployment Directory", "Please the directory to deploy",
+                project, descriptor);
+    }
+
 
     public JPanel getMainPanel() {
         return mainPanel;
@@ -82,6 +95,8 @@ public class ApusicRunnerSettingsForm implements Disposable {
         if (configuration.getEnvOptions() != null) {
             envOptions.setEnvs(configuration.getEnvOptions());
         }
+        contextPathField.setText(configuration.getContextPath());
+        docBaseField.setText(configuration.getDocBase());
         envOptions.setPassParentEnvs(configuration.isPassParentEnvs());
     }
 
@@ -95,6 +110,9 @@ public class ApusicRunnerSettingsForm implements Disposable {
                 file = new File(file, "mydomain");
                 domainField.setText(file.getAbsolutePath());
             }
+
+            configuration.setDocBase(docBaseField.getText());
+            configuration.setContextPath(contextPathField.getText());
             configuration.setDomain(domainField.getText());
             configuration.setVmOptions(vmOptions.getText());
             configuration.setEnvOptions(envOptions.getEnvs());

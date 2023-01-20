@@ -39,6 +39,9 @@ java {
         languageVersion.set(JavaLanguageVersion.of(prop("jdkVersion")))
     }
 }
+dependencies {
+    testImplementation("org.mockito:mockito-core:5.0.0")
+}
 
 tasks {
     // Set the JVM compatibility versions
