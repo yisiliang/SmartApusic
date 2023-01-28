@@ -19,7 +19,6 @@ import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.PathsList;
-import com.intellij.util.io.IOUtil;
 import com.yisiliang.idea.plugins.apusic.utils.PluginUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -181,7 +180,7 @@ public class ApusicCommandLineState extends JavaCommandLineState {
         if (resourceAsStream != null) {
             FileOutputStream fileOutputStream = new FileOutputStream(extLoader);
             FileUtil.copy(resourceAsStream, fileOutputStream);
-            IOUtil.closeSafe(LOG, resourceAsStream, fileOutputStream);
+            PluginUtils.closeSafe(resourceAsStream, fileOutputStream);
         } else {
             LOG.error("can't getResourceAsStream by lib/apusic-external-classloader.dat");
         }

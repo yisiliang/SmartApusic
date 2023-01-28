@@ -22,7 +22,9 @@ import com.yisiliang.idea.plugins.apusic.setting.ApusicServerManagerState;
 import com.yisiliang.idea.plugins.apusic.setting.ApusicServersConfigurable;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -127,6 +129,18 @@ public final class PluginUtils {
         File file = new File(apusicPath, "domains");
         file = new File(file, "mydomain");
         return file.getAbsolutePath();
+    }
+
+    public static void closeSafe(Closeable... closeables) {
+        for (Closeable closeable : closeables) {
+            if (closeable != null) {
+                try {
+                    closeable.close();
+                } catch (IOException e) {
+                    //ignore
+                }
+            }
+        }
     }
 
     public static List<VirtualFile> findWebRoots(Module module) {
