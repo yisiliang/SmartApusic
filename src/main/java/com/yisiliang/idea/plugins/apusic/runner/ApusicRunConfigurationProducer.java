@@ -1,6 +1,5 @@
 package com.yisiliang.idea.plugins.apusic.runner;
 
-import com.intellij.execution.Location;
 import com.intellij.execution.actions.ConfigurationContext;
 import com.intellij.execution.actions.ConfigurationFromContext;
 import com.intellij.execution.actions.LazyRunConfigurationProducer;
@@ -13,15 +12,12 @@ import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import com.intellij.util.containers.ContainerUtil;
-import com.yisiliang.idea.plugins.apusic.conf.ApusicCommandLineState;
 import com.yisiliang.idea.plugins.apusic.conf.ApusicRunConfiguration;
 import com.yisiliang.idea.plugins.apusic.conf.ApusicRunConfigurationType;
 import com.yisiliang.idea.plugins.apusic.setting.ApusicInfo;
 import com.yisiliang.idea.plugins.apusic.setting.ApusicServerManagerState;
 import com.yisiliang.idea.plugins.apusic.utils.PluginUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -47,7 +43,7 @@ public class ApusicRunConfigurationProducer extends LazyRunConfigurationProducer
             return false;
         }
 
-        List<VirtualFile> webRoots = findWebRoots(context.getLocation());
+        List<VirtualFile> webRoots = PluginUtils.findWebRoots(context.getLocation());
         if (webRoots.isEmpty()) {
             return false;
         }
@@ -58,6 +54,7 @@ public class ApusicRunConfigurationProducer extends LazyRunConfigurationProducer
             configuration.setApusicInfo(apusicInfos.get(0));
         }
         String contextPath = PluginUtils.extractContextPath(module);
+        LOG.info("configuration = " + configuration + " hash = " + configuration.hashCode());
         LOG.info("docBase = " + webRoots.get(0).getPath());
         LOG.info("contextPath = /" + contextPath);
         configuration.setDocBase(webRoots.get(0).getPath());
@@ -73,21 +70,8 @@ public class ApusicRunConfigurationProducer extends LazyRunConfigurationProducer
 
     @Override
     public boolean isConfigurationFromContext(@NotNull ApusicRunConfiguration configuration, @NotNull ConfigurationContext context) {
-        List<VirtualFile> webRoots = findWebRoots(context.getLocation());
+        List<VirtualFile> webRoots = PluginUtils.findWebRoots(context.getLocation());
         return webRoots.stream().anyMatch(webRoot -> webRoot.getPath().equals(configuration.getDocBase()));
-    }
-
-    private List<VirtualFile> findWebRoots(@Nullable Location<?> location) {
-        if (location == null) {
-            return ContainerUtil.emptyList();
-        }
-
-        boolean isTestFile = PluginUtils.isUnderTestSources(location);
-        if (isTestFile) {
-            return ContainerUtil.emptyList();
-        }
-
-        return PluginUtils.findWebRoots(location.getModule());
     }
 
 }

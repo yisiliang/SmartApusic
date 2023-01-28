@@ -27,7 +27,7 @@ public class ApusicRunConfigurationType extends SimpleConfigurationType {
 
     @Override
     public @NotNull RunConfiguration createTemplateConfiguration(@NotNull Project project) {
-        return new ApusicRunConfiguration(project, this, "");
+        return new ApusicRunConfiguration(project, this, project.getName());
     }
 
 }

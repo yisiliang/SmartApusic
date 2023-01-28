@@ -16,6 +16,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.yisiliang.idea.plugins.apusic.setting.ApusicInfo;
 import com.yisiliang.idea.plugins.apusic.setting.ApusicServerManagerState;
@@ -25,10 +26,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Author : zengkid
@@ -37,13 +36,6 @@ import java.util.stream.Collectors;
  */
 public class ApusicRunConfiguration extends LocatableConfigurationBase<LocatableRunConfigurationOptions> implements RunProfileWithCompileBeforeLaunchOption {
 
-    private static final List<ApusicLogFile> APUSIC_LOG_FILES = Arrays.asList(
-            new ApusicLogFile(ApusicLogFile.TOMCAT_LOCALHOST_LOG_ID, "localhost", true),
-            new ApusicLogFile(ApusicLogFile.TOMCAT_ACCESS_LOG_ID, "localhost_access_log", true),
-            new ApusicLogFile(ApusicLogFile.TOMCAT_CATALINA_LOG_ID, "catalina"),
-            new ApusicLogFile(ApusicLogFile.TOMCAT_MANAGER_LOG_ID, "manager"),
-            new ApusicLogFile(ApusicLogFile.TOMCAT_HOST_MANAGER_LOG_ID, "host-manager")
-    );
     private ApusicRunConfigurationOptions apusicOptions = new ApusicRunConfigurationOptions();
 
     protected ApusicRunConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory, String name) {
@@ -52,14 +44,15 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         List<ApusicInfo> apusicInfos = applicationService.getApusicInfos();
         if (!apusicInfos.isEmpty()) {
             apusicOptions.setApusicInfo(apusicInfos.get(0));
+            apusicOptions.setDomain(PluginUtils.getDefaultDomain(apusicOptions.getApusicInfo().getPath()));
         }
-        addPredefinedApusicLogFiles();
-    }
 
-    private static List<PredefinedLogFile> createPredefinedLogFiles() {
-        return APUSIC_LOG_FILES.stream()
-                .map(ApusicLogFile::createPredefinedLogFile)
-                .collect(Collectors.toList());
+        List<VirtualFile> webRoots = PluginUtils.findWebRoots(project);
+        if (!webRoots.isEmpty()) {
+            String contextPath = PluginUtils.extractContextPath(project);
+            apusicOptions.setDocBase(webRoots.get(0).getPath());
+            apusicOptions.setContextPath("/" + contextPath);
+        }
     }
 
     @NotNull
@@ -104,24 +97,9 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
     }
 
     @Override
-    public @Nullable LogFileOptions getOptionsForPredefinedLogFile(PredefinedLogFile file) {
-        for (ApusicLogFile logFile : APUSIC_LOG_FILES) {
-            if (logFile.getId().equals(file.getId())) {
-                return logFile.createLogFileOptions(file, PluginUtils.getApusicLogsDirPath(this));
-            }
-        }
-
-        return super.getOptionsForPredefinedLogFile(file);
-    }
-
-    @Override
     public void readExternal(@NotNull Element element) throws InvalidDataException {
         super.readExternal(element);
         XmlSerializer.deserializeInto(element, apusicOptions);
-
-        if (getAllLogFiles().isEmpty()) {
-            addPredefinedApusicLogFiles();
-        }
     }
 
     @Override
@@ -130,9 +108,6 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         XmlSerializer.serializeObjectInto(apusicOptions, element);
     }
 
-    private void addPredefinedApusicLogFiles() {
-        createPredefinedLogFiles().forEach(this::addPredefinedLogFile);
-    }
 
     public ApusicInfo getApusicInfo() {
         return apusicOptions.getApusicInfo();
@@ -157,6 +132,15 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
     public void setVmOptions(String vmOptions) {
         apusicOptions.setVmOptions(vmOptions);
     }
+
+    public boolean isAddLibsAndClasses() {
+        return apusicOptions.isAddLibsAndClasses();
+    }
+
+    public void setAddLibsAndClasses(boolean addLibsAndClasses) {
+        apusicOptions.setAddLibsAndClasses(addLibsAndClasses);
+    }
+
 
     public String getDocBase() {
         return apusicOptions.getDocBase();
@@ -205,6 +189,15 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         private Boolean passParentEnvs = true;
         private String contextPath;
         private String docBase;
+        private boolean addLibsAndClasses;
+
+        public boolean isAddLibsAndClasses() {
+            return addLibsAndClasses;
+        }
+
+        public void setAddLibsAndClasses(boolean addLibsAndClasses) {
+            this.addLibsAndClasses = addLibsAndClasses;
+        }
 
         public String getDocBase() {
             return docBase;

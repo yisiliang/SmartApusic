@@ -3,6 +3,7 @@ package com.yisiliang.idea.plugins.apusic.conf;
 import com.intellij.execution.configuration.EnvironmentVariablesTextFieldWithBrowseButton;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.module.Module;
@@ -35,11 +36,13 @@ import java.io.File;
 import java.util.List;
 
 public class ApusicRunnerSettingsForm implements Disposable {
+    private static final Logger LOG = Logger.getInstance(ApusicRunnerSettingsForm.class);
 
     private final Project project;
     private final JPanel apusicField = new JPanel(new BorderLayout());
     private final JTextField domainField = new JTextField();
     private final JTextField contextPathField = new JTextField();
+    private final JCheckBox addLibsAndClassesCheckBox = new JCheckBox();
     private final TextFieldWithBrowseButton docBaseField = new TextFieldWithBrowseButton();
 
     private final ApusicComboBox apusicComboBox = new ApusicComboBox(domainField);
@@ -65,6 +68,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
                 .addLabeledComponent("Domain:", domainField)
                 .addLabeledComponent("Deployment directory:", docBaseField)
                 .addLabeledComponent("Context path:", contextPathField)
+                .addLabeledComponent("Add libraries and classes:", addLibsAndClassesCheckBox)
                 .addLabeledComponent("VM options:", vmOptions)
                 .addLabeledComponent("Env options:", envOptions)
                 .addComponentFillVertically(new JPanel(), 0);
@@ -85,12 +89,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
 
     public void resetFrom(ApusicRunConfiguration configuration) {
         apusicComboBox.setSelectedItem(configuration.getApusicInfo());
-        if (configuration.getApusicInfo().getPath() != null
-                && StringUtil.isEmpty(configuration.getDomain())) {
-            File file = new File(configuration.getApusicInfo().getPath(), "domains");
-            file = new File(file, "mydomain");
-            domainField.setText(file.getAbsolutePath());
-        }
+        domainField.setText(configuration.getDomain());
         vmOptions.setText(configuration.getVmOptions());
         if (configuration.getEnvOptions() != null) {
             envOptions.setEnvs(configuration.getEnvOptions());
@@ -98,22 +97,17 @@ public class ApusicRunnerSettingsForm implements Disposable {
         contextPathField.setText(configuration.getContextPath());
         docBaseField.setText(configuration.getDocBase());
         envOptions.setPassParentEnvs(configuration.isPassParentEnvs());
+        addLibsAndClassesCheckBox.setSelected(configuration.isAddLibsAndClasses());
     }
 
     public void applyTo(ApusicRunConfiguration configuration) throws ConfigurationException {
         try {
             ApusicInfo selectedApusicInfo = (ApusicInfo) apusicComboBox.getSelectedItem();
             configuration.setApusicInfo(selectedApusicInfo);
-
-            if (selectedApusicInfo != null && StringUtil.isEmpty(domainField.getText())) {
-                File file = new File(selectedApusicInfo.getPath(), "domains");
-                file = new File(file, "mydomain");
-                domainField.setText(file.getAbsolutePath());
-            }
-
+            configuration.setDomain(domainField.getText());
             configuration.setDocBase(docBaseField.getText());
             configuration.setContextPath(contextPathField.getText());
-            configuration.setDomain(domainField.getText());
+            configuration.setAddLibsAndClasses(addLibsAndClassesCheckBox.isSelected());
             configuration.setVmOptions(vmOptions.getText());
             configuration.setEnvOptions(envOptions.getEnvs());
             configuration.setPassParentEnvironmentVariables(envOptions.isPassParentEnvs());

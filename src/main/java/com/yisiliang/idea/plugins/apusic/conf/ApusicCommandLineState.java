@@ -36,6 +36,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -104,31 +105,6 @@ public class ApusicCommandLineState extends JavaCommandLineState {
             Path workingPath = PluginUtils.getWorkingPath(configuration);
             File workingPathFile = workingPath.toFile();
 
-            workingPathFile.mkdirs();
-            File jarsPathFile = new File(workingPathFile, "lib");
-            File extPathFile = new File(workingPathFile, "ext");
-            FileUtil.delete(jarsPathFile);
-            FileUtil.delete(extPathFile);
-            jarsPathFile.mkdirs();
-            extPathFile.mkdirs();
-            List<File> moduleJars = getModuleJars(configuration.getProject());
-            if (!moduleJars.isEmpty()) {
-                for (File moduleJar : moduleJars) {
-                    File targetFile = new File(jarsPathFile, moduleJar.getName());
-                    FileUtil.copy(moduleJar, targetFile);
-                }
-            }
-            File extLoader = new File(extPathFile, "apusic-external-classloader.jar");
-
-            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("lib/apusic-external-classloader.dat");
-            if (resourceAsStream != null) {
-                FileOutputStream fileOutputStream = new FileOutputStream(extLoader);
-                FileUtil.copy(resourceAsStream, fileOutputStream);
-                IOUtil.closeSafe(LOG, resourceAsStream, fileOutputStream);
-            } else {
-                LOG.error("can't getResourceAsStream by lib/apusic-external-classloader.dat");
-            }
-
             File apusicHome = new File(configuration.getApusicInfo().getPath());
 
             Path apusicInstallationPath = Paths.get(configuration.getApusicInfo().getPath());
@@ -145,9 +121,14 @@ public class ApusicCommandLineState extends JavaCommandLineState {
             javaParams.setWorkingDirectory(workingPath.toFile());
             javaParams.setJdk(manager.getProjectSdk());
 
+            ParametersList vmParams = javaParams.getVMParametersList();
+
+            if (configuration.isAddLibsAndClasses()) {
+                addLibsAndClasses(workingPathFile, project, javaParams, vmParams);
+            }
+
 
             javaParams.getClassPath().add(apusicInstallationPath.resolve("classes").toFile());
-            javaParams.getClassPath().add(extLoader);
             javaParams.getClassPath().addAllFiles(PluginUtils.listJars(apusicInstallationPath.resolve("common").toFile()));
             javaParams.getClassPath().addAllFiles(PluginUtils.listJars(apusicInstallationPath.resolve("lib").toFile()));
             javaParams.getClassPath().addAllFiles(PluginUtils.listJars(apusicInstallationPath.resolve("lib" + File.separator + "ext").toFile()));
@@ -160,14 +141,11 @@ public class ApusicCommandLineState extends JavaCommandLineState {
                 javaParams.setEnv(envOptions);
             }
 
-            ParametersList vmParams = javaParams.getVMParametersList();
             vmParams.addParametersString(vmOptions);
             vmParams.addProperty(PARAM_DOMAIN_HOME, configuration.getDomain());
             vmParams.addProperty(ENV_DOMAIN_HOME, configuration.getDomain());
             vmParams.addProperty(ENV_APUSIC_HOME, apusicHome.getAbsolutePath());
-            vmParams.addProperty(SMART_APUSIC_CLASS_LOADER, SMART_APUSIC_CLASS);
-            vmParams.addProperty(SMART_APUSIC_EXTERNAL_LIBRARY, jarsPathFile.getAbsolutePath());
-            vmParams.addProperty(SMART_APUSIC_EXTERNAL_CLASS, getModuleClasses(project));
+
             File docBase = new File(configuration.getDocBase());
             vmParams.addProperty(SMART_APUSIC_BASE_FILE, docBase.getAbsolutePath());
             javaParams.getProgramParametersList().add("-root");
@@ -180,6 +158,38 @@ public class ApusicCommandLineState extends JavaCommandLineState {
             throw new RuntimeException(e);
         }
 
+    }
+
+    private void addLibsAndClasses(File workingPathFile, Project project, JavaParameters javaParams, ParametersList vmParams) throws IOException {
+        workingPathFile.mkdirs();
+        File jarsPathFile = new File(workingPathFile, "lib");
+        File extPathFile = new File(workingPathFile, "ext");
+        FileUtil.delete(jarsPathFile);
+        FileUtil.delete(extPathFile);
+        jarsPathFile.mkdirs();
+        extPathFile.mkdirs();
+        List<File> moduleJars = getModuleJars(configuration.getProject());
+        if (!moduleJars.isEmpty()) {
+            for (File moduleJar : moduleJars) {
+                File targetFile = new File(jarsPathFile, moduleJar.getName());
+                FileUtil.copy(moduleJar, targetFile);
+            }
+        }
+        File extLoader = new File(extPathFile, "apusic-external-classloader.jar");
+
+        InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("lib/apusic-external-classloader.dat");
+        if (resourceAsStream != null) {
+            FileOutputStream fileOutputStream = new FileOutputStream(extLoader);
+            FileUtil.copy(resourceAsStream, fileOutputStream);
+            IOUtil.closeSafe(LOG, resourceAsStream, fileOutputStream);
+        } else {
+            LOG.error("can't getResourceAsStream by lib/apusic-external-classloader.dat");
+        }
+        javaParams.getClassPath().add(extLoader);
+
+        vmParams.addProperty(SMART_APUSIC_CLASS_LOADER, SMART_APUSIC_CLASS);
+        vmParams.addProperty(SMART_APUSIC_EXTERNAL_LIBRARY, jarsPathFile.getAbsolutePath());
+        vmParams.addProperty(SMART_APUSIC_EXTERNAL_CLASS, getModuleClasses(project));
     }
 
     private List<File> getModuleJars(Project project) {

@@ -15,6 +15,7 @@ import com.intellij.openapi.util.io.FileFilters;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
+import com.intellij.util.containers.ContainerUtil;
 import com.yisiliang.idea.plugins.apusic.conf.ApusicRunConfiguration;
 import com.yisiliang.idea.plugins.apusic.setting.ApusicInfo;
 import com.yisiliang.idea.plugins.apusic.setting.ApusicServerManagerState;
@@ -114,6 +115,18 @@ public final class PluginUtils {
         return ArrayUtil.getLastElement(s.split("\\."));
     }
 
+    public static String extractContextPath(Project project) {
+        String name = project.getName();
+        String s = StringUtil.trimEnd(name, ".main");
+        return ArrayUtil.getLastElement(s.split("\\."));
+    }
+
+    public static String getDefaultDomain(String apusicPath) {
+        File file = new File(apusicPath, "domains");
+        file = new File(file, "mydomain");
+        return file.getAbsolutePath();
+    }
+
     public static List<VirtualFile> findWebRoots(Module module) {
         List<VirtualFile> webRoots = new ArrayList<>();
         if (module == null) {
@@ -179,5 +192,18 @@ public final class PluginUtils {
         }
         fileList.addAll(Arrays.asList(ret));
         return fileList;
+    }
+
+    public static List<VirtualFile> findWebRoots(@Nullable Location<?> location) {
+        if (location == null) {
+            return ContainerUtil.emptyList();
+        }
+
+        boolean isTestFile = isUnderTestSources(location);
+        if (isTestFile) {
+            return ContainerUtil.emptyList();
+        }
+
+        return findWebRoots(location.getModule());
     }
 }
