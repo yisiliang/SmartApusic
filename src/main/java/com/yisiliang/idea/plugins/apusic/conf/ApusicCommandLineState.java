@@ -253,14 +253,13 @@ public class ApusicCommandLineState extends JavaCommandLineState {
             Element root = document.getDocumentElement();
             NodeList applications = root.getElementsByTagName("applications");
             if (applications.getLength() != 1) {
-                LOG.warn("applications length is not only one, return.");
-                return;
+                throw new RuntimeException("There is no <applications> tag in " + configXml);
             }
             Node item = applications.item(0);
             NodeList appNodes = item.getChildNodes();
             if (appNodes.getLength() > 0) {
-                for (int i = 0; i < appNodes.getLength(); i++) {
-                    item.removeChild(appNodes.item(i));
+                while (item.getFirstChild() != null) {
+                    item.removeChild(item.getFirstChild());
                 }
             }
 
@@ -274,7 +273,11 @@ public class ApusicCommandLineState extends JavaCommandLineState {
 
             TransformerFactory factory = TransformerFactory.newInstance();
             Transformer former = factory.newTransformer();
-            former.transform(new DOMSource(document), new StreamResult(configXml));
+            FileOutputStream fileOutputStream = new FileOutputStream(configXml);
+            StreamResult outputTarget = new StreamResult(fileOutputStream);
+            former.transform(new DOMSource(document), outputTarget);
+            fileOutputStream.flush();
+            fileOutputStream.close();
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
             throw new RuntimeException(e.getMessage(), e);
