@@ -1,8 +1,14 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
+
 # SmartApusic Changelog
+
+## [0.0.5] - 2023-01-28
+### Added
+
+- support normal web project.
+
 ## [0.0.4] - 2023-01-18
 ### Changed
-
 - update plugin description.
 
 ## [0.0.3] - 2023-01-17

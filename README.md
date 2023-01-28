@@ -15,4 +15,5 @@ Apusic Application Server(AAS) is a Web Application Server developed by KingDee.
 * VM Options : input the vm options, e.g. "-server -Xmx1024m -Xms1024m"
 * Env Options : extract apusic env parameters, e.g. "e.g. param1=value1"
 ### 3. Start run/debug
+The plugin will automatically change the config.xml in Apusic Domain.
 <!-- Plugin description end -->
