@@ -110,15 +110,17 @@ public final class PluginUtils {
 
 
     public static String extractContextPath(Module module) {
-        String name = module.getName();
-        String s = StringUtil.trimEnd(name, ".main");
-        return ArrayUtil.getLastElement(s.split("\\."));
+        return extractContextPath(module.getName());
     }
 
     public static String extractContextPath(Project project) {
-        String name = project.getName();
+        return extractContextPath(project.getName());
+    }
+
+    public static String extractContextPath(String name) {
         String s = StringUtil.trimEnd(name, ".main");
-        return ArrayUtil.getLastElement(s.split("\\."));
+        String lastElement = ArrayUtil.getLastElement(s.split("\\."));
+        return StringUtil.replace(lastElement, "_", "-");
     }
 
     public static String getDefaultDomain(String apusicPath) {
