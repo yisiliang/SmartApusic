@@ -77,7 +77,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
     }
 
     private void initDeploymentDirectory() {
-        FileChooserDescriptor descriptor = new IgnoreOutputFileChooserDescriptor(project);
+        FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
         docBaseField.addBrowseFolderListener("Select Deployment Directory", "Please the directory to deploy",
                 project, descriptor);
     }
