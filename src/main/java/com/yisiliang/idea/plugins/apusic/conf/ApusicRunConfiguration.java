@@ -141,6 +141,13 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         apusicOptions.setAddLibsAndClasses(addLibsAndClasses);
     }
 
+    public String getExternalClasspath() {
+        return apusicOptions.getExternalClasspath();
+    }
+
+    public void setExternalClasspath(String externalClasspath) {
+        apusicOptions.setExternalClasspath(externalClasspath);
+    }
 
     public String getDocBase() {
         return apusicOptions.getDocBase();
@@ -189,7 +196,16 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
         private Boolean passParentEnvs = true;
         private String contextPath;
         private String docBase;
+        private String externalClasspath;
         private boolean addLibsAndClasses;
+
+        public String getExternalClasspath() {
+            return externalClasspath;
+        }
+
+        public void setExternalClasspath(String externalClasspath) {
+            this.externalClasspath = externalClasspath;
+        }
 
         public boolean isAddLibsAndClasses() {
             return addLibsAndClasses;

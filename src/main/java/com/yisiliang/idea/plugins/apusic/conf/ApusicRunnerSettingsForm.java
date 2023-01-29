@@ -6,15 +6,11 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.TextComponentAccessor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.ui.UIBundle;
@@ -47,6 +43,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
 
     private final ApusicComboBox apusicComboBox = new ApusicComboBox(domainField);
     private final RawCommandLineEditor vmOptions = new RawCommandLineEditor();
+    private final RawCommandLineEditor externalClasspathEditor = new RawCommandLineEditor();
     private final EnvironmentVariablesTextFieldWithBrowseButton envOptions = new EnvironmentVariablesTextFieldWithBrowseButton();
     private JPanel mainPanel;
 
@@ -69,17 +66,20 @@ public class ApusicRunnerSettingsForm implements Disposable {
                 .addLabeledComponent("Deployment directory:", docBaseField)
                 .addLabeledComponent("Context path:", contextPathField)
                 .addLabeledComponent("Add libraries and classes:", addLibsAndClassesCheckBox)
+                .addLabeledComponent("External classpath(split by ,):", externalClasspathEditor)
                 .addLabeledComponent("VM options:", vmOptions)
                 .addLabeledComponent("Env options:", envOptions)
                 .addComponentFillVertically(new JPanel(), 0);
-        initDeploymentDirectory();
+
+        initFormComponents();
         mainPanel = builder.getPanel();
     }
 
-    private void initDeploymentDirectory() {
+    private void initFormComponents() {
         FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
         docBaseField.addBrowseFolderListener("Select Deployment Directory", "Please the directory to deploy",
                 project, descriptor);
+        addLibsAndClassesCheckBox.setToolTipText("if the Deployment directory doesn't contain libraries and classes, please select it.");
     }
 
 
@@ -98,6 +98,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
         docBaseField.setText(configuration.getDocBase());
         envOptions.setPassParentEnvs(configuration.isPassParentEnvs());
         addLibsAndClassesCheckBox.setSelected(configuration.isAddLibsAndClasses());
+        externalClasspathEditor.setText(configuration.getExternalClasspath());
     }
 
     public void applyTo(ApusicRunConfiguration configuration) throws ConfigurationException {
@@ -111,6 +112,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
             configuration.setVmOptions(vmOptions.getText());
             configuration.setEnvOptions(envOptions.getEnvs());
             configuration.setPassParentEnvironmentVariables(envOptions.isPassParentEnvs());
+            configuration.setExternalClasspath(externalClasspathEditor.getText());
         } catch (Exception e) {
             throw new ConfigurationException(e.getMessage());
         }
@@ -157,9 +159,7 @@ public class ApusicRunnerSettingsForm implements Disposable {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 ApusicInfo selectedApusicInfo = (ApusicInfo) this.getSelectedItem();
                 if (selectedApusicInfo != null && StringUtil.isEmpty(domainField.getText())) {
-                    File file = new File(selectedApusicInfo.getPath(), "domains");
-                    file = new File(file, "mydomain");
-                    domainField.setText(file.getAbsolutePath());
+                    domainField.setText(PluginUtils.getDefaultDomain(selectedApusicInfo.getPath()));
                 }
                 super.fireItemStateChanged(e);
             }
@@ -224,32 +224,6 @@ public class ApusicRunnerSettingsForm implements Disposable {
             });
         }
 
-    }
-
-    private static class IgnoreOutputFileChooserDescriptor extends FileChooserDescriptor {
-        private static final FileChooserDescriptor singleFolderDescriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
-        private final Project project;
-
-        public IgnoreOutputFileChooserDescriptor(Project project) {
-            super(singleFolderDescriptor);
-            this.project = project;
-        }
-
-        @Override
-        public boolean isFileVisible(VirtualFile file, boolean showHiddenFiles) {
-            Module[] modules = ModuleManager.getInstance(project).getModules();
-
-            for (Module module : modules) {
-                VirtualFile[] excludeRoots = ModuleRootManager.getInstance(module).getExcludeRoots();
-                for (VirtualFile excludeFile : excludeRoots) {
-                    if (excludeFile.equals(file)) {
-                        return false;
-                    }
-                }
-            }
-
-            return super.isFileVisible(file, showHiddenFiles);
-        }
     }
 
 }

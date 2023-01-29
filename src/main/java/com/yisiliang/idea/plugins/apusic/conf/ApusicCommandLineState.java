@@ -18,6 +18,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.PathsList;
 import com.yisiliang.idea.plugins.apusic.utils.PluginUtils;
 import org.jetbrains.annotations.NotNull;
@@ -40,6 +41,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -126,6 +128,15 @@ public class ApusicCommandLineState extends JavaCommandLineState {
                 addLibsAndClasses(workingPathFile, project, javaParams, vmParams);
             }
 
+            String externalClasspath = configuration.getExternalClasspath();
+            if (StringUtil.isNotEmpty(externalClasspath)) {
+                String[] extPaths = externalClasspath.split(",");
+                for (String extPath : extPaths) {
+                    if (StringUtil.isNotEmpty(extPath)) {
+                        javaParams.getClassPath().add(new File(extPath));
+                    }
+                }
+            }
 
             javaParams.getClassPath().add(apusicInstallationPath.resolve("classes").toFile());
             javaParams.getClassPath().addAllFiles(PluginUtils.listJars(apusicInstallationPath.resolve("common").toFile()));
