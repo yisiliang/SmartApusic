@@ -2,7 +2,7 @@
 
 # SmartApusic Changelog
 
-## [0.0.7] - 2023-02-021
+## [0.0.7] - 2023-02-01
 ### Fixed
 
 - create working directory.
