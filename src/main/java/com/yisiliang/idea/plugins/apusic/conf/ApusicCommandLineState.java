@@ -105,6 +105,7 @@ public class ApusicCommandLineState extends JavaCommandLineState {
 
             Path workingPath = PluginUtils.getWorkingPath(configuration);
             File workingPathFile = workingPath.toFile();
+            workingPathFile.mkdirs();
 
             File apusicHome = new File(configuration.getApusicInfo().getPath());
 
@@ -119,7 +120,7 @@ public class ApusicCommandLineState extends JavaCommandLineState {
 
             JavaParameters javaParams = new JavaParameters();
             javaParams.setDefaultCharset(project);
-            javaParams.setWorkingDirectory(workingPath.toFile());
+            javaParams.setWorkingDirectory(workingPathFile);
             javaParams.setJdk(manager.getProjectSdk());
 
             ParametersList vmParams = javaParams.getVMParametersList();
@@ -171,7 +172,6 @@ public class ApusicCommandLineState extends JavaCommandLineState {
     }
 
     private void addLibsAndClasses(File workingPathFile, Project project, JavaParameters javaParams, ParametersList vmParams) throws IOException {
-        workingPathFile.mkdirs();
         File jarsPathFile = new File(workingPathFile, "lib");
         File extPathFile = new File(workingPathFile, "ext");
         FileUtil.delete(jarsPathFile);
