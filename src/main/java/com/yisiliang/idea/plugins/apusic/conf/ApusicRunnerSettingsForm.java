@@ -81,9 +81,10 @@ public class ApusicRunnerSettingsForm implements Disposable {
         if (projectDir != null && projectDir.isDirectory()) {
             descriptor.setRoots(projectDir);
         }
-        docBaseField.addBrowseFolderListener(PluginConstant.DOC_BASE_BROWSE_TITLE_KEY, PluginConstant.DOC_BASE_BROWSE_DESC_KEY,
+        docBaseField.addBrowseFolderListener(PluginUtils.getI18NValue(PluginConstant.DOC_BASE_BROWSE_TITLE_KEY),
+                PluginUtils.getI18NValue(PluginConstant.DOC_BASE_BROWSE_DESC_KEY),
                 project, descriptor);
-        addLibsAndClassesCheckBox.setToolTipText(PluginConstant.ADD_CHECKBOX_TOOL_TIP_TEXT_KEY);
+        addLibsAndClassesCheckBox.setToolTipText(PluginUtils.getI18NValue(PluginConstant.ADD_CHECKBOX_TOOL_TIP_TEXT_KEY));
     }
 
 
