@@ -23,17 +23,7 @@ import com.intellij.util.PathsList;
 import com.yisiliang.idea.plugins.apusic.utils.PluginUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -41,7 +31,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -101,7 +90,12 @@ public class ApusicCommandLineState extends JavaCommandLineState {
     @Override
     protected JavaParameters createJavaParameters() {
         try {
-            changeDomainConfig();
+            String domain = configuration.getDomain();
+            String name = configuration.getName();
+            String contextPath = configuration.getContextPath();
+            String docBase = configuration.getDocBase();
+
+            PluginUtils.changeDomainConfig(domain, name, contextPath, docBase);
 
             Path workingPath = PluginUtils.getWorkingPath(configuration);
             File workingPathFile = workingPath.toFile();
@@ -157,8 +151,8 @@ public class ApusicCommandLineState extends JavaCommandLineState {
             vmParams.addProperty(ENV_DOMAIN_HOME, configuration.getDomain());
             vmParams.addProperty(ENV_APUSIC_HOME, apusicHome.getAbsolutePath());
 
-            File docBase = new File(configuration.getDocBase());
-            vmParams.addProperty(SMART_APUSIC_BASE_FILE, docBase.getAbsolutePath());
+            File docBaseFile = new File(configuration.getDocBase());
+            vmParams.addProperty(SMART_APUSIC_BASE_FILE, docBaseFile.getAbsolutePath());
             javaParams.getProgramParametersList().add("-root");
             javaParams.getProgramParametersList().add(apusicHome.getAbsolutePath());
             javaParams.setUseDynamicClasspath(project);
@@ -242,56 +236,6 @@ public class ApusicCommandLineState extends JavaCommandLineState {
     @Override
     protected ConsoleView createConsole(@NotNull Executor executor) {
         return new ServerConsoleView(configuration);
-    }
-
-
-    private void changeDomainConfig() {
-        try {
-            String domain = configuration.getDomain();
-            String name = configuration.getName();
-            String contextPath = configuration.getContextPath();
-            String docBase = configuration.getDocBase();
-
-            File configXmlFolder = new File(domain, "config");
-            File configXml = new File(configXmlFolder, "config.xml");
-            File configBackXml = new File(configXmlFolder, "config.xml" + System.currentTimeMillis());
-
-            FileUtil.copy(configXml, configBackXml);
-
-            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document document = documentBuilder.parse(configXml);
-            Element root = document.getDocumentElement();
-            NodeList applications = root.getElementsByTagName("applications");
-            if (applications.getLength() != 1) {
-                throw new RuntimeException("There is no <applications> tag in " + configXml);
-            }
-            Node item = applications.item(0);
-            NodeList appNodes = item.getChildNodes();
-            if (appNodes.getLength() > 0) {
-                while (item.getFirstChild() != null) {
-                    item.removeChild(item.getFirstChild());
-                }
-            }
-
-            Element appNode = document.createElement("application");
-            appNode.setAttribute("name", name);
-            appNode.setAttribute("base", docBase);
-            appNode.setAttribute("start", "auto");
-            appNode.setAttribute("base-context", contextPath);
-            appNode.setAttribute("global-session", "false");
-            item.appendChild(appNode);
-
-            TransformerFactory factory = TransformerFactory.newInstance();
-            Transformer former = factory.newTransformer();
-            FileOutputStream fileOutputStream = new FileOutputStream(configXml);
-            StreamResult outputTarget = new StreamResult(fileOutputStream);
-            former.transform(new DOMSource(document), outputTarget);
-            fileOutputStream.flush();
-            fileOutputStream.close();
-        } catch (Throwable e) {
-            LOG.error(e.getMessage(), e);
-            throw new RuntimeException(e.getMessage(), e);
-        }
     }
 
 

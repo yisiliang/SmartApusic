@@ -52,6 +52,8 @@ public class ApusicRunConfiguration extends LocatableConfigurationBase<Locatable
             String contextPath = PluginUtils.extractContextPath(project);
             apusicOptions.setDocBase(webRoots.get(0).getPath());
             apusicOptions.setContextPath("/" + contextPath);
+        } else {
+            apusicOptions.setContextPath("/");
         }
     }
 

@@ -3,14 +3,15 @@ package com.yisiliang.idea.plugins.apusic.conf;
 import com.intellij.execution.configuration.EnvironmentVariablesTextFieldWithBrowseButton;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.ui.TextComponentAccessor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.ui.UIBundle;
@@ -19,6 +20,7 @@ import com.intellij.ui.components.fields.ExtendableTextField;
 import com.intellij.util.ui.FormBuilder;
 import com.yisiliang.idea.plugins.apusic.setting.ApusicInfo;
 import com.yisiliang.idea.plugins.apusic.setting.ApusicServerManagerState;
+import com.yisiliang.idea.plugins.apusic.utils.PluginConstant;
 import com.yisiliang.idea.plugins.apusic.utils.PluginUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,11 +30,9 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.util.List;
 
 public class ApusicRunnerSettingsForm implements Disposable {
-    private static final Logger LOG = Logger.getInstance(ApusicRunnerSettingsForm.class);
 
     private final Project project;
     private final JPanel apusicField = new JPanel(new BorderLayout());
@@ -61,14 +61,14 @@ public class ApusicRunnerSettingsForm implements Disposable {
 
     private void buildForm() {
         FormBuilder builder = FormBuilder.createFormBuilder()
-                .addLabeledComponent("Apusic server:", apusicField)
-                .addLabeledComponent("Domain:", domainField)
-                .addLabeledComponent("Deployment directory:", docBaseField)
-                .addLabeledComponent("Context path:", contextPathField)
-                .addLabeledComponent("Add libraries and classes:", addLibsAndClassesCheckBox)
-                .addLabeledComponent("External classpath(split by ,):", externalClasspathEditor)
-                .addLabeledComponent("VM options:", vmOptions)
-                .addLabeledComponent("Env options:", envOptions)
+                .addLabeledComponent(PluginUtils.getI18NValue(PluginConstant.APUSIC_SERVER_KEY), apusicField)
+                .addLabeledComponent(PluginUtils.getI18NValue(PluginConstant.DOMAIN_KEY), domainField)
+                .addLabeledComponent(PluginUtils.getI18NValue(PluginConstant.DEPLOYMENT_DIRECTORY_KEY), docBaseField)
+                .addLabeledComponent(PluginUtils.getI18NValue(PluginConstant.CONTEXT_PATH_KEY), contextPathField)
+                .addLabeledComponent(PluginUtils.getI18NValue(PluginConstant.ADD_LIBRARIES_AND_CLASSES_KEY), addLibsAndClassesCheckBox)
+                .addLabeledComponent(PluginUtils.getI18NValue(PluginConstant.EXTERNAL_CLASSPATH_KEY), externalClasspathEditor)
+                .addLabeledComponent(PluginUtils.getI18NValue(PluginConstant.VM_OPTIONS_KEY), vmOptions)
+                .addLabeledComponent(PluginUtils.getI18NValue(PluginConstant.ENV_OPTIONS_KEY), envOptions)
                 .addComponentFillVertically(new JPanel(), 0);
 
         initFormComponents();
@@ -76,10 +76,14 @@ public class ApusicRunnerSettingsForm implements Disposable {
     }
 
     private void initFormComponents() {
-        FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
-        docBaseField.addBrowseFolderListener("Select Deployment Directory", "Please the directory to deploy",
+        FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFileOrFolderDescriptor();
+        VirtualFile projectDir = ProjectUtil.guessProjectDir(project);
+        if (projectDir != null && projectDir.isDirectory()) {
+            descriptor.setRoots(projectDir);
+        }
+        docBaseField.addBrowseFolderListener(PluginConstant.DOC_BASE_BROWSE_TITLE_KEY, PluginConstant.DOC_BASE_BROWSE_DESC_KEY,
                 project, descriptor);
-        addLibsAndClassesCheckBox.setToolTipText("if the Deployment directory doesn't contain libraries and classes, please select it.");
+        addLibsAndClassesCheckBox.setToolTipText(PluginConstant.ADD_CHECKBOX_TOOL_TIP_TEXT_KEY);
     }
 
 

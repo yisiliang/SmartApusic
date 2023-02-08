@@ -1,6 +1,7 @@
 package com.yisiliang.idea.plugins.apusic.utils;
 
 import com.intellij.execution.Location;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
@@ -12,6 +13,7 @@ import com.intellij.openapi.roots.ModuleFileIndex;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.util.io.FileFilters;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
@@ -21,16 +23,27 @@ import com.yisiliang.idea.plugins.apusic.setting.ApusicInfo;
 import com.yisiliang.idea.plugins.apusic.setting.ApusicServerManagerState;
 import com.yisiliang.idea.plugins.apusic.setting.ApusicServersConfigurable;
 import org.jetbrains.annotations.Nullable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
@@ -44,10 +57,52 @@ import java.util.stream.Stream;
  * Time   : 21:35
  */
 public final class PluginUtils {
+    private static final Logger LOG = Logger.getInstance(PluginUtils.class);
+
     private static final int MIN_PORT_VALUE = 0;
     private static final int MAX_PORT_VALUE = 65535;
 
     private PluginUtils() {
+    }
+
+    private static Properties I18N_PROP = null;
+    private volatile static boolean I18N_LOAD = false;
+
+    private static void initI18NProp() {
+        if (!I18N_LOAD) {
+            synchronized (PluginUtils.class) {
+                if (!I18N_LOAD) {
+                    String userLanguage = System.getProperty("user.language");
+                    if (userLanguage == null || userLanguage.isEmpty()) {
+                        userLanguage = "en";
+                    }
+                    InputStream languageInputStream = PluginUtils.class.getClassLoader().getResourceAsStream("i18n/" + userLanguage + ".properties");
+                    if (languageInputStream == null) {
+                        languageInputStream = PluginUtils.class.getClassLoader().getResourceAsStream("i18n/en.properties");
+                    }
+                    try {
+                        I18N_PROP = new Properties();
+                        I18N_PROP.load(languageInputStream);
+                        I18N_LOAD = true;
+                    } catch (IOException e) {
+                        //ignore
+                    } finally {
+                        closeSafe(languageInputStream);
+                    }
+                }
+            }
+        }
+    }
+
+    public static String getI18NValue(String key) {
+        initI18NProp();
+        if (I18N_PROP != null) {
+            String property = I18N_PROP.getProperty(key);
+            if (property != null) {
+                return property;
+            }
+        }
+        return key;
     }
 
     /**
@@ -221,5 +276,85 @@ public final class PluginUtils {
         }
 
         return findWebRoots(location.getModule());
+    }
+
+    public static void changeDomainConfig(String domain, String name, String contextPath, String docBase) {
+        try {
+            File configXmlFolder = new File(domain, "config");
+            File configXml = new File(configXmlFolder, "config.xml");
+
+            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document document = documentBuilder.parse(configXml);
+            Element root = document.getDocumentElement();
+            NodeList applications = root.getElementsByTagName("applications");
+            if (applications.getLength() != 1) {
+                throw new RuntimeException("There is no <applications> tag in " + configXml);
+            }
+            Node applicationsNode = applications.item(0);
+            List<Element> childElementList = getChildElementList(applicationsNode);
+            int applicationSize = childElementList.size();
+            if (applicationSize == 1) {
+                Element applicationElement = childElementList.get(0);
+                String nameAttribute = applicationElement.getAttribute("name");
+                String baseAttribute = applicationElement.getAttribute("base");
+                String startAttribute = applicationElement.getAttribute("start");
+                String baseContextAttribute = applicationElement.getAttribute("base-context");
+                String globalSessionAttribute = applicationElement.getAttribute("global-session");
+                if (StringUtil.equals(nameAttribute, name)
+                        && StringUtil.equals(baseAttribute, docBase)
+                        && StringUtil.equals(startAttribute, "auto")
+                        && StringUtil.equals(baseContextAttribute, contextPath)
+                        && StringUtil.equals(globalSessionAttribute, "false")) {
+                    LOG.info("config.xml is what we need and does not need to be modified, return.");
+                    return;
+                }
+            }
+            //backup config.xml
+            File configBackXml = new File(configXmlFolder, "config.xml" + System.currentTimeMillis());
+            FileUtil.copy(configXml, configBackXml);
+
+            if (applicationSize > 0) {
+                for (Element element : childElementList) {
+                    applicationsNode.removeChild(element);
+                }
+            }
+
+            Element appNode = document.createElement("application");
+            appNode.setAttribute("name", name);
+            appNode.setAttribute("base", docBase);
+            appNode.setAttribute("start", "auto");
+            appNode.setAttribute("base-context", contextPath);
+            appNode.setAttribute("global-session", "false");
+            applicationsNode.appendChild(appNode);
+
+            TransformerFactory factory = TransformerFactory.newInstance();
+            Transformer former = factory.newTransformer();
+            FileOutputStream fileOutputStream = new FileOutputStream(configXml);
+            StreamResult outputTarget = new StreamResult(fileOutputStream);
+            former.transform(new DOMSource(document), outputTarget);
+            fileOutputStream.flush();
+            fileOutputStream.close();
+        } catch (Throwable e) {
+            LOG.error(e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    public static List<Element> getChildElementList(Node node) {
+        List<Element> elementList = new ArrayList<>();
+        if (node == null) {
+            return elementList;
+        }
+        NodeList childNodes = node.getChildNodes();
+        int length = childNodes.getLength();
+        if (length > 0) {
+            for (int i = 0; i < length; i++) {
+                Node child = childNodes.item(i);
+                if (child != null && child.getNodeType() == Node.ELEMENT_NODE && child instanceof Element) {
+                    elementList.add((Element) child);
+                }
+            }
+        }
+        return elementList;
     }
 }
