@@ -1,6 +1,12 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
 # SmartApusic Changelog
+## [0.0.9] - 2023-02-10
+### Added
+
+- load classpath in order.
+- add all zip and jar files in lib.
+
 ## [0.0.8] - 2023-02-08
 ### Added
 

@@ -265,6 +265,16 @@ public final class PluginUtils {
         return fileList;
     }
 
+    public static List<File> listZips(File dir) {
+        File[] ret = dir.listFiles(FileFilters.filesWithExtension("zip"));
+        List<File> fileList = new ArrayList<>();
+        if (ret == null) {
+            return fileList;
+        }
+        fileList.addAll(Arrays.asList(ret));
+        return fileList;
+    }
+
     public static List<VirtualFile> findWebRoots(@Nullable Location<?> location) {
         if (location == null) {
             return ContainerUtil.emptyList();

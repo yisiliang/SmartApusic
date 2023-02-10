@@ -133,11 +133,23 @@ public class ApusicCommandLineState extends JavaCommandLineState {
                 }
             }
 
+            //1
             javaParams.getClassPath().add(apusicInstallationPath.resolve("classes").toFile());
+            //2
+            javaParams.getClassPath().addAllFiles(PluginUtils.listJars(apusicInstallationPath.resolve("sp").toFile()));
+            javaParams.getClassPath().addAllFiles(PluginUtils.listZips(apusicInstallationPath.resolve("sp").toFile()));
+            //3
             javaParams.getClassPath().addAllFiles(PluginUtils.listJars(apusicInstallationPath.resolve("common").toFile()));
+            //4
             javaParams.getClassPath().addAllFiles(PluginUtils.listJars(apusicInstallationPath.resolve("lib").toFile()));
+            javaParams.getClassPath().addAllFiles(PluginUtils.listZips(apusicInstallationPath.resolve("lib").toFile()));
+            //5
             javaParams.getClassPath().addAllFiles(PluginUtils.listJars(apusicInstallationPath.resolve("lib" + File.separator + "ext").toFile()));
+            javaParams.getClassPath().addAllFiles(PluginUtils.listZips(apusicInstallationPath.resolve("lib" + File.separator + "ext").toFile()));
 
+            //6
+            javaParams.getClassPath().addAllFiles(PluginUtils.listJars(new File(domain, "lib")));
+            javaParams.getClassPath().addAllFiles(PluginUtils.listZips(new File(domain, "lib")));
 
             javaParams.setMainClass(APUSIC_MAIN_CLASS);
 
